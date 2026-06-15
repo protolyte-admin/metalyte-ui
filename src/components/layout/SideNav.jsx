@@ -17,8 +17,7 @@ import { useAuth } from "../../context/useAuth";
 const navItems = [
     { label: "Inbox", icon: <InboxIcon />, path: "/" },
     { label: "Reports", icon: <BarChartIcon />, path: "/reports" },
-    { label: "Contacts", icon: <ContactsIcon />, path: "/contacts" },
-    { label: "Settings", icon: <SettingsIcon />, path: "/settings" }
+    { label: "Contacts", icon: <ContactsIcon />, path: "/contacts" }
 ];
 
 function isActive(item, location) {
@@ -211,7 +210,7 @@ export default function SideNav() {
                     }
                 }}
             >
-                <Tooltip title={collapsed ? "Help" : ""} placement="right">
+                {/* <Tooltip title={collapsed ? "Help" : ""} placement="right">
                     <Button
                         fullWidth
                         startIcon={<HelpOutlineIcon />}
@@ -232,7 +231,7 @@ export default function SideNav() {
                             Help
                         </Box>
                     </Button>
-                </Tooltip>
+                </Tooltip> */}
 
                 <Tooltip title={collapsed ? "Logout" : ""} placement="right">
                     <Button

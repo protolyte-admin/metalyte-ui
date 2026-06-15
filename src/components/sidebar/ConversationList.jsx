@@ -81,12 +81,14 @@ function ConversationList({
                     placeholder="Search messages..."
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon sx={{ color: "#A8B0D0", fontSize: 19 }} />
-                            </InputAdornment>
-                        )
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon sx={{ color: "#A8B0D0", fontSize: 19 }} />
+                                </InputAdornment>
+                            )
+                        }
                     }}
                     sx={{
                         "& .MuiOutlinedInput-root": {

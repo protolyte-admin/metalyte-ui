@@ -3,7 +3,7 @@ import { Alert, Box, Snackbar } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 import SideNav from "../components/layout/SideNav";
-import TopBar from "../components/layout/TopBar";
+// import TopBar from "../components/layout/TopBar";
 import MarqButton from "../components/common/MarqButton";
 import ContactList from "../components/contacts/ContactList";
 import ContactListFilters, {
@@ -133,48 +133,51 @@ export default function ContactsPage() {
     // Reset to page 0 whenever the query changes.
     useEffect(() => {
         let active = true;
-        setLoading(true);
-        setError("");
-        setContacts([]);
-        setHasMore(false);
-        setPage(0);
-        inFlightRef.current = false;
+        const timer = window.setTimeout(() => {
+            setLoading(true);
+            setError("");
+            setContacts([]);
+            setHasMore(false);
+            setPage(0);
+            inFlightRef.current = false;
 
-        const serverQuery = buildServerQuery({ search, dateRange });
+            const serverQuery = buildServerQuery({ search, dateRange });
 
-        listContacts({
-            page: 0,
-            size: pageSize,
-            sort,
-            ...serverQuery
-        })
-            .then((response) => {
-                if (!active) return;
-                const pageData = normalizeContactPage(response);
-                setContacts(dedupeById(pageData.items));
-                setTotalElements(pageData.totalElements);
-                setHasMore(pageData.hasMore);
-                setPage(0);
+            listContacts({
+                page: 0,
+                size: pageSize,
+                sort,
+                ...serverQuery
             })
-            .catch((err) => {
-                console.error(err);
-                if (active) {
-                    setError(
-                        err?.response?.data?.message ||
-                            err?.message ||
-                            "Failed to load contacts"
-                    );
-                }
-            })
-            .finally(() => {
-                if (active) {
-                    setLoading(false);
-                    inFlightRef.current = false;
-                }
-            });
+                .then((response) => {
+                    if (!active) return;
+                    const pageData = normalizeContactPage(response);
+                    setContacts(dedupeById(pageData.items));
+                    setTotalElements(pageData.totalElements);
+                    setHasMore(pageData.hasMore);
+                    setPage(0);
+                })
+                .catch((err) => {
+                    console.error(err);
+                    if (active) {
+                        setError(
+                            err?.response?.data?.message ||
+                                err?.message ||
+                                "Failed to load contacts"
+                        );
+                    }
+                })
+                .finally(() => {
+                    if (active) {
+                        setLoading(false);
+                        inFlightRef.current = false;
+                    }
+                });
+        }, 0);
 
         return () => {
             active = false;
+            window.clearTimeout(timer);
         };
     }, [search, dateRange, sort, pageSize]);
 
@@ -287,7 +290,7 @@ export default function ContactsPage() {
                     minWidth: 0
                 }}
             >
-                <TopBar />
+                {/* <TopBar /> */}
 
                 <Box
                     sx={{

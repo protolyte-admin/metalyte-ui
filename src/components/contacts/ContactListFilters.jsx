@@ -52,12 +52,14 @@ export default function ContactListFilters({
                 placeholder="Search name, phone, email…"
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <SearchIcon sx={{ color: "#A8B0D0", fontSize: 19 }} />
-                        </InputAdornment>
-                    )
+                slotProps={{
+                    input: {
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon sx={{ color: "#A8B0D0", fontSize: 19 }} />
+                            </InputAdornment>
+                        )
+                    }
                 }}
                 sx={{
                     flex: 1,

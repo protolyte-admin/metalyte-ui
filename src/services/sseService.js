@@ -1,135 +1,209 @@
-// Server-Sent Events client for Marq Studio.
-//
-// Backend expectations:
-//   GET /api/v1/events/stream/messages?token=<jwt>
-//   Content-Type: text/event-stream
-//   Events emitted:
-//     - "new-message"     (a fresh inbound or outbound message)
-//     - "message-status"  (a status update for an existing message)
-//     - "heartbeat"       (keep-alive, ignored by the client)
-//
-// Browser limitation: EventSource cannot set custom request headers. We
-// authenticate by appending the access token as a query string. The backend
-// must accept either a Bearer header OR a ?token=... query parameter on the
-// SSE endpoint.
-//
-// Reconnect: EventSource already auto-reconnects on network errors. We layer
-// on (a) explicit close on disconnect, (b) exponential backoff with jitter
-// when we close and reopen ourselves, and (c) named-event fan-out so multiple
-// components can subscribe without re-creating the connection.
-
 import { useEffect, useRef, useState } from "react";
 
 const SSE_BASE_URL = "/api/v1/events/stream/messages";
 const MAX_BACKOFF_MS = 30_000;
 const BASE_BACKOFF_MS = 1_000;
 
+function getAccessToken() {
+    return localStorage.getItem("accessToken");
+}
+
+function buildSseUrl(token) {
+    const params = new URLSearchParams({ token });
+    return `${SSE_BASE_URL}?${params.toString()}`;
+}
+
+function parseSseBlock(block) {
+    const event = {
+        name: "message",
+        data: ""
+    };
+
+    block.split("\n").forEach((line) => {
+        if (!line || line.startsWith(":")) return;
+
+        const separatorIndex = line.indexOf(":");
+        const field = separatorIndex >= 0 ? line.slice(0, separatorIndex) : line;
+        const rawValue = separatorIndex >= 0 ? line.slice(separatorIndex + 1) : "";
+        const value = rawValue.startsWith(" ") ? rawValue.slice(1) : rawValue;
+
+        if (field === "event") {
+            event.name = value || "message";
+        }
+
+        if (field === "data") {
+            event.data += event.data ? `\n${value}` : value;
+        }
+    });
+
+    return event;
+}
+
 class SseClient {
     constructor() {
-        this.source = null;
-        this.url = null;
-        this.listeners = new Map(); // eventName -> Set<callback>
+        this.controller = null;
+        this.listeners = new Map();
         this.statusListeners = new Set();
         this.manualClose = false;
         this.reconnectAttempts = 0;
         this.reconnectTimer = null;
+        this.status = "idle";
+        this.buffer = "";
     }
 
     _notifyStatus(status, detail) {
-        this.statusListeners.forEach((cb) => {
+        this.status = status;
+        this.statusListeners.forEach((callback) => {
             try {
-                cb(status, detail);
-            } catch (err) {
-                console.error("[sse] status listener threw", err);
+                callback(status, detail);
+            } catch (error) {
+                console.error("[sse] status listener threw", error);
             }
         });
     }
 
     _dispatch(eventName, data) {
-        const set = this.listeners.get(eventName);
-        if (!set) return;
-        set.forEach((cb) => {
+        const callbacks = this.listeners.get(eventName);
+        if (!callbacks) return;
+
+        callbacks.forEach((callback) => {
             try {
-                cb(data);
-            } catch (err) {
-                console.error(`[sse] listener for ${eventName} threw`, err);
+                callback(data);
+            } catch (error) {
+                console.error(`[sse] listener for ${eventName} threw`, error);
             }
         });
     }
 
-    _buildUrl() {
-        const token = localStorage.getItem("accessToken");
-        if (!token) return null;
-        // Use URLSearchParams for safe encoding
-        const params = new URLSearchParams({ token });
-        return `${SSE_BASE_URL}?${params.toString()}`;
+    _handleEventBlock(block) {
+        const event = parseSseBlock(block);
+        if (!event.data || event.name === "heartbeat") return;
+
+        let payload = event.data;
+        try {
+            payload = JSON.parse(event.data);
+        } catch {
+            // Keep raw text payloads as-is.
+        }
+
+        this._dispatch(event.name, payload);
     }
 
-    connect() {
-        if (this.source) {
-            // Already connected — no-op. Caller should call disconnect() first
-            // if they want a fresh connection.
+    _processChunk(chunk) {
+        this.buffer += chunk.replace(/\r\n/g, "\n");
+
+        let boundary = this.buffer.indexOf("\n\n");
+        while (boundary >= 0) {
+            const block = this.buffer.slice(0, boundary).trim();
+            this.buffer = this.buffer.slice(boundary + 2);
+
+            if (block) {
+                this._handleEventBlock(block);
+            }
+
+            boundary = this.buffer.indexOf("\n\n");
+        }
+    }
+
+    async _readStream(response, controller) {
+        if (!response.body) {
+            throw new Error("SSE response did not include a readable stream");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+
+        try {
+            while (!this.manualClose) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                this._processChunk(decoder.decode(value, { stream: true }));
+            }
+        } finally {
+            try {
+                reader.releaseLock();
+            } catch {
+                // Some browsers release automatically when the stream closes.
+            }
+
+            if (this.controller === controller) {
+                this.controller = null;
+            }
+        }
+    }
+
+    async _open(controller, token) {
+        const url = buildSseUrl(token);
+
+        this._notifyStatus("connecting");
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                Accept: "text/event-stream",
+                Authorization: `Bearer ${token}`
+            },
+            credentials: "include",
+            cache: "no-store",
+            signal: controller.signal
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            this._notifyStatus("unauthenticated", {
+                status: response.status
+            });
+            this.disconnect();
             return;
         }
 
-        const url = this._buildUrl();
-        if (!url) {
+        if (!response.ok) {
+            throw new Error(`SSE connection failed with HTTP ${response.status}`);
+        }
+
+        this.reconnectAttempts = 0;
+        this.buffer = "";
+        this._notifyStatus("open");
+        await this._readStream(response, controller);
+
+        if (!this.manualClose) {
+            this._scheduleReconnect();
+        }
+    }
+
+    connect() {
+        if (this.controller) {
+            return;
+        }
+
+        const token = getAccessToken();
+        if (!token) {
             console.warn("[sse] connect skipped: no accessToken in localStorage");
             this._notifyStatus("unauthenticated");
             return;
         }
 
-        this.url = url;
         this.manualClose = false;
+        const controller = new AbortController();
+        this.controller = controller;
 
-        let source;
-        try {
-            source = new EventSource(url, { withCredentials: false });
-        } catch (err) {
-            console.error("[sse] failed to construct EventSource", err);
-            this._scheduleReconnect();
-            return;
-        }
-
-        this.source = source;
-        this._notifyStatus("connecting");
-
-        source.addEventListener("open", () => {
-            this.reconnectAttempts = 0;
-            this._notifyStatus("open");
-        });
-
-        source.addEventListener("error", (event) => {
-            // EventSource has already closed. If we didn't ask it to close,
-            // it will auto-reconnect, but we also surface the status.
-            if (this.manualClose) return;
-            this._notifyStatus("error", event);
-            // If readyState is CLOSED, EventSource won't reconnect on its
-            // own — we have to.
-            if (source.readyState === EventSource.CLOSED) {
-                this.source = null;
-                this._scheduleReconnect();
+        this._open(controller, token).catch((error) => {
+            if (this.manualClose || controller.signal.aborted) {
+                return;
             }
-        });
 
-        // Named events. Each backend event type gets its own listener channel.
-        ["new-message", "message-status", "heartbeat"].forEach((name) => {
-            source.addEventListener(name, (event) => {
-                if (name === "heartbeat") return; // ignore keep-alives
-                let payload = event.data;
-                try {
-                    payload = JSON.parse(event.data);
-                } catch {
-                    // Non-JSON payload — keep the raw string.
-                }
-                this._dispatch(name, payload);
-            });
+            console.error("[sse] stream error", error);
+
+            if (this.controller === controller) {
+                this.controller = null;
+            }
+
+            this._notifyStatus("error", error);
+            this._scheduleReconnect();
         });
     }
 
     _scheduleReconnect() {
-        if (this.manualClose) return;
-        if (this.reconnectTimer) return;
+        if (this.manualClose || this.reconnectTimer) return;
 
         const attempt = ++this.reconnectAttempts;
         const exp = Math.min(MAX_BACKOFF_MS, BASE_BACKOFF_MS * 2 ** (attempt - 1));
@@ -139,7 +213,7 @@ class SseClient {
         console.warn(`[sse] reconnecting in ${Math.round(delay)}ms (attempt ${attempt})`);
         this._notifyStatus("reconnecting", { attempt, delay });
 
-        this.reconnectTimer = setTimeout(() => {
+        this.reconnectTimer = window.setTimeout(() => {
             this.reconnectTimer = null;
             this.connect();
         }, delay);
@@ -147,36 +221,38 @@ class SseClient {
 
     disconnect() {
         this.manualClose = true;
+
         if (this.reconnectTimer) {
-            clearTimeout(this.reconnectTimer);
+            window.clearTimeout(this.reconnectTimer);
             this.reconnectTimer = null;
         }
-        if (this.source) {
-            try {
-                this.source.close();
-            } catch (err) {
-                console.error("[sse] error closing source", err);
-            }
-            this.source = null;
+
+        if (this.controller) {
+            this.controller.abort();
+            this.controller = null;
         }
+
+        this.buffer = "";
         this._notifyStatus("closed");
     }
 
-    // Subscribe to a named backend event ("new-message", "message-status", ...).
-    // Returns an unsubscribe function.
     on(eventName, callback) {
         if (!this.listeners.has(eventName)) {
             this.listeners.set(eventName, new Set());
         }
+
         this.listeners.get(eventName).add(callback);
         return () => this.off(eventName, callback);
     }
 
     off(eventName, callback) {
-        const set = this.listeners.get(eventName);
-        if (!set) return;
-        set.delete(callback);
-        if (set.size === 0) this.listeners.delete(eventName);
+        const callbacks = this.listeners.get(eventName);
+        if (!callbacks) return;
+
+        callbacks.delete(callback);
+        if (callbacks.size === 0) {
+            this.listeners.delete(eventName);
+        }
     }
 
     onStatusChange(callback) {
@@ -185,21 +261,19 @@ class SseClient {
     }
 
     isConnected() {
-        return this.source?.readyState === EventSource.OPEN;
+        return this.status === "open";
     }
 }
 
 const sseClient = new SseClient();
 export default sseClient;
 
-// React hook: useSseEvent("new-message", handler)
-//
-// Connects the SSE client on mount, disconnects on unmount, and subscribes
-// the given callback to the named event. Re-subscribes automatically if the
-// callback identity changes.
 export function useSseEvent(eventName, handler, { enabled = true } = {}) {
     const handlerRef = useRef(handler);
-    handlerRef.current = handler;
+
+    useEffect(() => {
+        handlerRef.current = handler;
+    }, [handler]);
 
     useEffect(() => {
         if (!enabled) return undefined;
@@ -216,7 +290,6 @@ export function useSseEvent(eventName, handler, { enabled = true } = {}) {
     }, [eventName, enabled]);
 }
 
-// React hook: useSseStatus() -> "connecting" | "open" | "error" | "closed" | "unauthenticated"
 export function useSseStatus() {
     const [status, setStatus] = useState(() =>
         sseClient.isConnected() ? "open" : "idle"

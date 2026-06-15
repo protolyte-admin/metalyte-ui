@@ -104,8 +104,10 @@ export default function ChatInput({ disabled = false, onSend }) {
                         disabled={disabled || sending}
                         onChange={(event) => setMessage(event.target.value)}
                         onKeyDown={handleKeyDown}
-                        InputProps={{
-                            disableUnderline: true
+                        slotProps={{
+                            input: {
+                                disableUnderline: true
+                            }
                         }}
                         sx={{
                             "& .MuiInputBase-root": {

@@ -1,10 +1,16 @@
 import { TextField } from "@mui/material";
 
-export default function MarqInput({ InputProps, sx, ...props }) {
+export default function MarqInput({ InputProps, slotProps, sx, ...props }) {
     return (
         <TextField
             fullWidth
-            InputProps={InputProps}
+            slotProps={{
+                ...slotProps,
+                input: {
+                    ...(slotProps?.input || {}),
+                    ...(InputProps || {})
+                }
+            }}
             sx={{
                 "& .MuiOutlinedInput-root": {
                     minHeight: 58

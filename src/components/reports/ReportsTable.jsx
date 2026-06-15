@@ -262,7 +262,6 @@ export default function ReportsTable({
     rowCount,
     sortModel,
     onPageChange,
-    onPageSizeChange,
     onSortModelChange,
     onRowClick,
     onRefresh,
@@ -286,7 +285,14 @@ export default function ReportsTable({
                         Review message history with server-side pagination and sorting.
                     </Typography>
                 </Box>
-                <Stack direction="row" spacing={2} alignItems="center" sx={{ flexWrap: "wrap" }}>
+                <Stack
+                    spacing={2}
+                    sx={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        flexWrap: "wrap"
+                    }}
+                >
                     <Typography variant="caption" color="text.secondary">
                         {showingLabel}
                     </Typography>

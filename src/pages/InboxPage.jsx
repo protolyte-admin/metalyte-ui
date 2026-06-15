@@ -149,37 +149,32 @@ export default function InboxPage() {
     // messaged. The backend's eventual "new-message" SSE event will also
     // append the message to the live thread.
     const handleComposeSend = async ({ to, body }) => {
-        try {
-            const response = await sendTextMessage({ to, body });
-            const sentMessage =
-                response.data?.data ?? {
-                    id: Date.now(),
-                    body,
-                    direction: "OUTBOUND",
-                    to,
-                    createdAt: new Date().toISOString()
-                };
-            setMessages((prev) => [...prev, sentMessage]);
-            // If the user wasn't in a conversation, drop them into the one
-            // they just messaged. selectedConversation is whatever the panel
-            // has; we only synthesise a minimal object if the backend's
-            // response doesn't include the contact shape.
-            setSelectedConversation((current) => {
-                if (current && current.phoneNumber === to) return current;
-                return (
-                    current ?? {
-                        phoneNumber: to,
-                        name: to,
-                        displayName: to
-                    }
-                );
-            });
-            setComposeOpen(false);
-        } catch (err) {
-            // Re-throw so the modal can display the error without losing
-            // what the user typed.
-            throw err;
-        }
+        const response = await sendTextMessage({ to, body });
+        const sentMessage =
+            response.data?.data ?? {
+                id: Date.now(),
+                body,
+                direction: "OUTBOUND",
+                to,
+                createdAt: new Date().toISOString()
+            };
+
+        setMessages((prev) => [...prev, sentMessage]);
+        // If the user wasn't in a conversation, drop them into the one
+        // they just messaged. selectedConversation is whatever the panel
+        // has; we only synthesise a minimal object if the backend's
+        // response doesn't include the contact shape.
+        setSelectedConversation((current) => {
+            if (current && current.phoneNumber === to) return current;
+            return (
+                current ?? {
+                    phoneNumber: to,
+                    name: to,
+                    displayName: to
+                }
+            );
+        });
+        setComposeOpen(false);
     };
 
     return (

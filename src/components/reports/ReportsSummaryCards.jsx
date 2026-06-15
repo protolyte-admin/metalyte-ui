@@ -1,4 +1,4 @@
-import { Box, Card, Chip, Grid, LinearProgress, Stack, Skeleton, Tooltip, Typography } from "@mui/material";
+import { Box, Card, Chip, LinearProgress, Stack, Skeleton, Tooltip, Typography } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorOutlineIcon from "@mui/icons-material/Error";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
@@ -19,8 +19,6 @@ function rateBand(value, { invert = false } = {}) {
     if (watch) return { label: "Watch", color: "warning" };
     return { label: "Critical", color: "error" };
 }
-
-const rateCardKeys = new Set(["deliveryRate", "readRate", "failureRate"]);
 
 const lifetimeCards = [
     {
@@ -151,7 +149,14 @@ function SummaryCard({ config, value, loading }) {
                 }
             }}
         >
-            <Stack direction="row" alignItems="flex-start" justifyContent="space-between" spacing={1.5}>
+            <Stack
+                spacing={1.5}
+                sx={{
+                    flexDirection: "row",
+                    alignItems: "flex-start",
+                    justifyContent: "space-between"
+                }}
+            >
                 <Box sx={{ minWidth: 0 }}>
                     <Typography variant="subtitle2" color="text.secondary" sx={{ lineHeight: 1.3 }}>
                         {label}
@@ -250,32 +255,51 @@ export default function ReportsSummaryCards({ summary, summaryHasData, loading, 
         <Stack spacing={3}>
             <Box>
                 <SectionHeader title="Lifetime" updatedAt={updatedAt} />
-                <Grid container spacing={2}>
+                <Box
+                    sx={{
+                        display: "grid",
+                        gridTemplateColumns: {
+                            xs: "1fr",
+                            sm: "repeat(2, minmax(0, 1fr))",
+                            md: "repeat(4, minmax(0, 1fr))",
+                            xl: "repeat(7, minmax(0, 1fr))"
+                        },
+                        gap: 2
+                    }}
+                >
                     {lifetimeCards.map((config) => (
-                        <Grid key={config.key} item xs={12} sm={6} md={4} lg={12 / 7}>
-                            <SummaryCard
-                                config={config}
-                                value={summaryData ? summaryData[config.field] : null}
-                                loading={loading}
-                            />
-                        </Grid>
+                        <SummaryCard
+                            key={config.key}
+                            config={config}
+                            value={summaryData ? summaryData[config.field] : null}
+                            loading={loading}
+                        />
                     ))}
-                </Grid>
+                </Box>
             </Box>
 
             <Box>
                 <SectionHeader title="Today" />
-                <Grid container spacing={2}>
+                <Box
+                    sx={{
+                        display: "grid",
+                        gridTemplateColumns: {
+                            xs: "1fr",
+                            sm: "repeat(2, minmax(0, 1fr))",
+                            md: "repeat(3, minmax(0, 1fr))"
+                        },
+                        gap: 2
+                    }}
+                >
                     {todayCards.map((config) => (
-                        <Grid key={config.key} item xs={12} sm={6} md={4}>
-                            <SummaryCard
-                                config={config}
-                                value={summaryData ? summaryData[config.field] : null}
-                                loading={loading}
-                            />
-                        </Grid>
+                        <SummaryCard
+                            key={config.key}
+                            config={config}
+                            value={summaryData ? summaryData[config.field] : null}
+                            loading={loading}
+                        />
                     ))}
-                </Grid>
+                </Box>
             </Box>
 
             {!loading && !summaryHasData ? (

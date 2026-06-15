@@ -10,7 +10,6 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import MarqButton from "../common/MarqButton";
 import MarqInput from "../common/MarqInput";
-import SocialLoginButtons from "./SocialLoginButtons";
 
 export default function LoginForm({
     email,

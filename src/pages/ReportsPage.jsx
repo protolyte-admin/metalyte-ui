@@ -1,7 +1,7 @@
 import { Alert, Box, Button, Typography } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SideNav from "../components/layout/SideNav";
-import TopBar from "../components/layout/TopBar";
+// import TopBar from "../components/layout/TopBar";
 import ReportsSummaryCards from "../components/reports/ReportsSummaryCards";
 import ReportsFilters from "../components/reports/ReportsFilters";
 import ReportsTable from "../components/reports/ReportsTable";
@@ -72,7 +72,7 @@ export default function ReportsPage() {
                     minWidth: 0
                 }}
             >
-                <TopBar />
+                {/* <TopBar /> */}
 
                 <Box
                     sx={{

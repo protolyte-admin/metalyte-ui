@@ -3,7 +3,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import CheckIcon from "@mui/icons-material/Check";
-import { Box, Button, Chip, Divider, Drawer, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Chip, Divider, Drawer, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import StatusTimeline from "./StatusTimeline";
 import { formatDateTimeIST } from "../../utils/time";
@@ -131,7 +131,15 @@ export default function MessageDetailsDrawer({ message, messages = [], onClose, 
             <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
                 <Box sx={{ p: 3, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1 }}>
                     <Box sx={{ minWidth: 0 }}>
-                        <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 0.5, flexWrap: "wrap" }}>
+                        <Stack
+                            spacing={1.5}
+                            sx={{
+                                mb: 0.5,
+                                flexDirection: "row",
+                                alignItems: "center",
+                                flexWrap: "wrap"
+                            }}
+                        >
                             <Typography variant="h6">Message Details</Typography>
                             {message.currentStatus ? (
                                 <Chip

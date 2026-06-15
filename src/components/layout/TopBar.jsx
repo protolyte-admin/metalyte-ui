@@ -23,12 +23,14 @@ export default function TopBar({ onNewMessage }) {
             <TextField
                 size="small"
                 placeholder="Search conversations..."
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <SearchIcon sx={{ color: "#C9CDE2", fontSize: 20 }} />
-                        </InputAdornment>
-                    )
+                slotProps={{
+                    input: {
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon sx={{ color: "#C9CDE2", fontSize: 20 }} />
+                            </InputAdornment>
+                        )
+                    }
                 }}
                 sx={{
                     width: {

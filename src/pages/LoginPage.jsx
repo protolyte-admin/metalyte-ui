@@ -1,8 +1,6 @@
 import { Avatar, Box, CardContent, Link, Typography } from "@mui/material";
 import GridViewIcon from "@mui/icons-material/GridView";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
-import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
-import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -134,7 +132,13 @@ function LoginPage() {
                     </CardContent>
                 </MarqCard>
 
-                <Typography textAlign="center" mt={3.5} color="text.secondary">
+                <Typography
+                    color="text.secondary"
+                    sx={{
+                        textAlign: "center",
+                        mt: 3.5
+                    }}
+                >
                     Don't have an account?{" "}
                     <Link
                         component="button"
