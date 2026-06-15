@@ -27,6 +27,10 @@ function useDebouncedValue(value, delay = 350) {
 }
 
 function buildQuery({ filters, page, size, sortModel }) {
+    // The API expects raw digits in phoneNumber; we let the user type formatted
+    // text in the filter and strip it here so what we send is always canonical.
+    const phoneNumber = (filters.phoneNumber || "").replace(/\D/g, "");
+
     const query = {
         page,
         size,
@@ -37,9 +41,9 @@ function buildQuery({ filters, page, size, sortModel }) {
         toDate: filters.toDate || undefined,
         status: filters.status || undefined,
         messageType: filters.messageType || undefined,
-        phoneNumber: filters.phoneNumber || undefined,
-        templateName: filters.templateName || undefined,
-        campaign: filters.campaign || undefined
+        phoneNumber: phoneNumber || undefined,
+        templateName: filters.templateName?.trim() || undefined,
+        campaign: filters.campaign?.trim() || undefined
     };
 
     Object.keys(query).forEach((key) => {
@@ -76,15 +80,27 @@ function normalizeMessagePage(response, page, size) {
     };
 }
 
+function hasAnySummaryValue(summary) {
+    if (!summary || typeof summary !== "object") return false;
+    return Object.values(summary).some((value) => {
+        if (value == null) return false;
+        if (typeof value === "number") return value !== 0;
+        if (typeof value === "string") return value.trim() !== "";
+        return Boolean(value);
+    });
+}
+
 export default function useReports() {
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
     const [activeFilters, setActiveFilters] = useState(DEFAULT_FILTERS);
     const [summary, setSummary] = useState(null);
     const [summaryLoading, setSummaryLoading] = useState(false);
     const [summaryError, setSummaryError] = useState("");
+    const [summaryUpdatedAt, setSummaryUpdatedAt] = useState(null);
     const [messages, setMessages] = useState([]);
     const [tableLoading, setTableLoading] = useState(false);
     const [tableError, setTableError] = useState("");
+    const [tableUpdatedAt, setTableUpdatedAt] = useState(null);
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
     const [rowCount, setRowCount] = useState(0);
@@ -92,13 +108,29 @@ export default function useReports() {
     const [selectedMessage, setSelectedMessage] = useState(null);
     const [refreshIndex, setRefreshIndex] = useState(0);
     const isMountedRef = useRef(true);
-    const debouncedFilters = useDebouncedValue(activeFilters, 350);
 
     useEffect(() => {
         return () => {
             isMountedRef.current = false;
         };
     }, []);
+
+    // Text fields are debounced independently of the structured fields so we
+    // don't fire a request on every keystroke but still apply a date/status
+    // change immediately.
+    const debouncedPhone = useDebouncedValue(activeFilters.phoneNumber, 350);
+    const debouncedTemplate = useDebouncedValue(activeFilters.templateName, 350);
+    const debouncedCampaign = useDebouncedValue(activeFilters.campaign, 350);
+
+    const debouncedFilters = useMemo(
+        () => ({
+            ...activeFilters,
+            phoneNumber: debouncedPhone,
+            templateName: debouncedTemplate,
+            campaign: debouncedCampaign
+        }),
+        [activeFilters, debouncedPhone, debouncedTemplate, debouncedCampaign]
+    );
 
     const queryParams = useMemo(
         () =>
@@ -117,9 +149,11 @@ export default function useReports() {
 
         try {
             const response = await getReportSummary(queryParams);
-            const summaryData = response.data?.data ?? response.data ?? null;
+            const summaryData =
+                response.data?.data?.data ?? response.data?.data ?? response.data ?? null;
             if (isMountedRef.current) {
                 setSummary(summaryData);
+                setSummaryUpdatedAt(new Date());
             }
         } catch (error) {
             if (isMountedRef.current) {
@@ -147,6 +181,7 @@ export default function useReports() {
             if (isMountedRef.current) {
                 setMessages(pageData.rows);
                 setRowCount(pageData.totalElements);
+                setTableUpdatedAt(new Date());
             }
         } catch (error) {
             if (isMountedRef.current) {
@@ -197,15 +232,22 @@ export default function useReports() {
         setPageSize(nextPageSize);
     }, []);
 
+    const summaryHasData = useMemo(() => hasAnySummaryValue(summary), [summary]);
+
     return {
         filters,
         setFilters,
+        activeFilters,
+        setActiveFilters,
         summary,
+        summaryHasData,
         summaryLoading,
         summaryError,
+        summaryUpdatedAt,
         messages,
         tableLoading,
         tableError,
+        tableUpdatedAt,
         page,
         pageSize,
         rowCount,
@@ -216,6 +258,8 @@ export default function useReports() {
         applyFilters,
         resetFilters,
         refresh,
-        setPaginationModel
+        setPaginationModel,
+        retrySummary: loadSummary,
+        retryMessages: loadMessages
     };
 }

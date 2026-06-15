@@ -1,4 +1,5 @@
-import { Box, Typography } from "@mui/material";
+import { Alert, Box, Button, Typography } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import SideNav from "../components/layout/SideNav";
 import TopBar from "../components/layout/TopBar";
 import ReportsSummaryCards from "../components/reports/ReportsSummaryCards";
@@ -11,12 +12,19 @@ export default function ReportsPage() {
     const {
         filters,
         setFilters,
+        activeFilters,
+        applyFilters,
+        resetFilters,
+        refresh,
         summary,
+        summaryHasData,
         summaryLoading,
         summaryError,
+        summaryUpdatedAt,
         messages,
         tableLoading,
         tableError,
+        tableUpdatedAt,
         page,
         pageSize,
         rowCount,
@@ -24,11 +32,26 @@ export default function ReportsPage() {
         setSortModel,
         selectedMessage,
         setSelectedMessage,
-        applyFilters,
-        resetFilters,
-        refresh,
-        setPaginationModel
+        setPaginationModel,
+        retrySummary,
+        retryMessages
     } = useReports();
+
+    const hasFilter = Boolean(
+        activeFilters.fromDate ||
+            activeFilters.toDate ||
+            activeFilters.status ||
+            activeFilters.messageType ||
+            activeFilters.phoneNumber ||
+            activeFilters.templateName ||
+            activeFilters.campaign
+    );
+
+    const handleNavigate = (index) => {
+        if (index >= 0 && index < messages.length) {
+            setSelectedMessage(messages[index]);
+        }
+    };
 
     return (
         <Box
@@ -78,16 +101,39 @@ export default function ReportsPage() {
                         </Typography>
                     </Box>
 
+                    {summaryError && tableError ? (
+                        <Alert
+                            severity="error"
+                            action={
+                                <Button
+                                    color="inherit"
+                                    size="small"
+                                    startIcon={<RefreshIcon />}
+                                    onClick={() => {
+                                        retrySummary();
+                                        retryMessages();
+                                    }}
+                                >
+                                    Retry
+                                </Button>
+                            }
+                        >
+                            We couldn't load the latest report data. {summaryError}
+                        </Alert>
+                    ) : null}
+
                     <ReportsSummaryCards
                         summary={summary}
+                        summaryHasData={summaryHasData}
                         loading={summaryLoading}
                         error={summaryError}
+                        updatedAt={summaryUpdatedAt}
                     />
 
                     <ReportsFilters
                         filters={filters}
                         onChange={setFilters}
-                        onApply={() => applyFilters()}
+                        onApply={applyFilters}
                         onReset={resetFilters}
                         loading={tableLoading || summaryLoading}
                     />
@@ -108,13 +154,18 @@ export default function ReportsPage() {
                         }}
                         onRowClick={(params) => setSelectedMessage(params.row)}
                         onRefresh={refresh}
+                        onReset={resetFilters}
+                        hasFilters={hasFilter}
+                        lastUpdated={tableUpdatedAt}
                     />
                 </Box>
             </Box>
 
             <MessageDetailsDrawer
                 message={selectedMessage}
+                messages={messages}
                 onClose={() => setSelectedMessage(null)}
+                onNavigate={handleNavigate}
             />
         </Box>
     );
