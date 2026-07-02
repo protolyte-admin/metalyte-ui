@@ -1,13 +1,11 @@
-import { Avatar, Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
+﻿import { Avatar, Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import ContactsIcon from "@mui/icons-material/Contacts";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import HelpOutlineIcon from "@mui/icons-material/Help";
 import InboxIcon from "@mui/icons-material/Inbox";
 import LogoutIcon from "@mui/icons-material/Logout";
-import SettingsIcon from "@mui/icons-material/Settings";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -308,3 +306,4 @@ export default function SideNav() {
         </Box>
     );
 }
+

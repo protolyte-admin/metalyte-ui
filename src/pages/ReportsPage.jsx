@@ -1,57 +1,31 @@
 import { Alert, Box, Button, Typography } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SideNav from "../components/layout/SideNav";
-// import TopBar from "../components/layout/TopBar";
 import ReportsSummaryCards from "../components/reports/ReportsSummaryCards";
-import ReportsFilters from "../components/reports/ReportsFilters";
 import ReportsTable from "../components/reports/ReportsTable";
-import MessageDetailsDrawer from "../components/reports/MessageDetailsDrawer";
 import useReports from "../hooks/useReports";
 
 export default function ReportsPage() {
     const {
-        filters,
-        setFilters,
-        activeFilters,
-        applyFilters,
-        resetFilters,
-        refresh,
+        // Summary
         summary,
         summaryHasData,
         summaryLoading,
         summaryError,
         summaryUpdatedAt,
-        messages,
-        tableLoading,
-        tableError,
-        tableUpdatedAt,
-        page,
-        pageSize,
-        rowCount,
-        sortModel,
-        setSortModel,
-        selectedMessage,
-        setSelectedMessage,
-        setPaginationModel,
         retrySummary,
-        retryMessages
+
+        // Messages
+        messages,
+        messagesLoading,
+        messagesError,
+        messagesTotal,
+        paginationModel,
+        messageFilters,
+        applyMessageFilters,
+        setMessagesPaginationModel,
+        reloadMessages
     } = useReports();
-
-    const hasFilter = Boolean(
-        activeFilters.fromDate ||
-            activeFilters.toDate ||
-            activeFilters.status ||
-            activeFilters.messageType ||
-            activeFilters.phoneNumber ||
-            activeFilters.templateName ||
-            activeFilters.campaign
-    );
-
-    const handleNavigate = (index) => {
-        if (index >= 0 && index < messages.length) {
-            setSelectedMessage(messages[index]);
-        }
-    };
 
     return (
         <Box
@@ -72,8 +46,6 @@ export default function ReportsPage() {
                     minWidth: 0
                 }}
             >
-                {/* <TopBar /> */}
-
                 <Box
                     sx={{
                         flex: 1,
@@ -81,14 +53,8 @@ export default function ReportsPage() {
                         flexDirection: "column",
                         minHeight: 0,
                         overflowY: "auto",
-                        px: {
-                            xs: 2,
-                            md: 3
-                        },
-                        py: {
-                            xs: 2,
-                            md: 3
-                        },
+                        px: { xs: 2, md: 3 },
+                        py: { xs: 2, md: 3 },
                         gap: 3
                     }}
                 >
@@ -101,7 +67,7 @@ export default function ReportsPage() {
                         </Typography>
                     </Box>
 
-                    {summaryError && tableError ? (
+                    {summaryError ? (
                         <Alert
                             severity="error"
                             action={
@@ -109,10 +75,7 @@ export default function ReportsPage() {
                                     color="inherit"
                                     size="small"
                                     startIcon={<RefreshIcon />}
-                                    onClick={() => {
-                                        retrySummary();
-                                        retryMessages();
-                                    }}
+                                    onClick={retrySummary}
                                 >
                                     Retry
                                 </Button>
@@ -130,43 +93,19 @@ export default function ReportsPage() {
                         updatedAt={summaryUpdatedAt}
                     />
 
-                    <ReportsFilters
-                        filters={filters}
-                        onChange={setFilters}
-                        onApply={applyFilters}
-                        onReset={resetFilters}
-                        loading={tableLoading || summaryLoading}
-                    />
-
                     <ReportsTable
                         messages={messages}
-                        loading={tableLoading}
-                        error={tableError}
-                        page={page}
-                        pageSize={pageSize}
-                        rowCount={rowCount}
-                        sortModel={sortModel}
-                        onPageChange={(nextPage, nextPageSize) => setPaginationModel(nextPage, nextPageSize)}
-                        onPageSizeChange={(nextPageSize) => setPaginationModel(0, nextPageSize)}
-                        onSortModelChange={(nextSortModel) => {
-                            setSortModel(nextSortModel.length ? nextSortModel : [{ field: "sentAt", sort: "desc" }]);
-                            setPaginationModel(0, pageSize);
-                        }}
-                        onRowClick={(params) => setSelectedMessage(params.row)}
-                        onRefresh={refresh}
-                        onReset={resetFilters}
-                        hasFilters={hasFilter}
-                        lastUpdated={tableUpdatedAt}
+                        loading={messagesLoading}
+                        error={messagesError}
+                        paginationModel={paginationModel}
+                        total={messagesTotal}
+                        filters={messageFilters}
+                        onFiltersChange={applyMessageFilters}
+                        onPaginationModelChange={setMessagesPaginationModel}
+                        onSearch={reloadMessages}
                     />
                 </Box>
             </Box>
-
-            <MessageDetailsDrawer
-                message={selectedMessage}
-                messages={messages}
-                onClose={() => setSelectedMessage(null)}
-                onNavigate={handleNavigate}
-            />
         </Box>
     );
 }

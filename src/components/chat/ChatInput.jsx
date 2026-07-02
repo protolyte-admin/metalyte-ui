@@ -15,35 +15,30 @@ const editorTools = [
     { label: "Code", icon: <CodeIcon /> }
 ];
 
-export default function ChatInput({ disabled = false, onSend }) {
+export default function ChatInput({
+    disabled = false,
+    onSend
+}) {
     const [message, setMessage] = useState("");
     const [sending, setSending] = useState(false);
 
     const handleSubmit = async () => {
-        const trimmed = message.trim();
-        if (!trimmed || !onSend) {
+        const text = message.trim();
+
+        if (!text || sending) {
             return;
         }
 
         try {
             setSending(true);
-            // Clear input optimistically; parent owns message state of record
+
+            await onSend?.(text);
+
             setMessage("");
-            await onSend(trimmed);
         } catch (error) {
-            // Restore text on failure so the user does not lose it
-            setMessage(trimmed);
-            console.error("ChatInput: send failed", error);
+            console.error("Failed to send message", error);
         } finally {
             setSending(false);
-        }
-    };
-
-    const handleKeyDown = (event) => {
-        // Ctrl+Enter or Cmd+Enter sends
-        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-            event.preventDefault();
-            handleSubmit();
         }
     };
 
@@ -71,7 +66,10 @@ export default function ChatInput({ disabled = false, onSend }) {
                     {editorTools.map((tool) => (
                         <Tooltip key={tool.label} title={tool.label}>
                             <span>
-                                <IconButton size="small" disabled={disabled}>
+                                <IconButton
+                                    size="small"
+                                    disabled={disabled}
+                                >
                                     {tool.icon}
                                 </IconButton>
                             </span>
@@ -102,12 +100,20 @@ export default function ChatInput({ disabled = false, onSend }) {
                         placeholder="Type your message..."
                         value={message}
                         disabled={disabled || sending}
-                        onChange={(event) => setMessage(event.target.value)}
-                        onKeyDown={handleKeyDown}
-                        slotProps={{
-                            input: {
-                                disableUnderline: true
+                        onChange={(event) =>
+                            setMessage(event.target.value)
+                        }
+                        onKeyDown={(event) => {
+                            if (
+                                event.key === "Enter" &&
+                                event.ctrlKey
+                            ) {
+                                event.preventDefault();
+                                handleSubmit();
                             }
+                        }}
+                        InputProps={{
+                            disableUnderline: true
                         }}
                         sx={{
                             "& .MuiInputBase-root": {
@@ -128,7 +134,11 @@ export default function ChatInput({ disabled = false, onSend }) {
                     <Tooltip title="Send">
                         <span>
                             <IconButton
-                                disabled={disabled || sending || !message.trim()}
+                                disabled={
+                                    disabled ||
+                                    sending ||
+                                    !message.trim()
+                                }
                                 onClick={handleSubmit}
                                 sx={{
                                     bgcolor: "#B9AEFF",
@@ -140,8 +150,10 @@ export default function ChatInput({ disabled = false, onSend }) {
                                         bgcolor: "#C9C2FF"
                                     },
                                     "&.Mui-disabled": {
-                                        bgcolor: "rgba(185,174,255,0.35)",
-                                        color: "rgba(2,11,31,0.45)"
+                                        bgcolor:
+                                            "rgba(185,174,255,0.35)",
+                                        color:
+                                            "rgba(2,11,31,0.45)"
                                     }
                                 }}
                             >
@@ -176,7 +188,16 @@ export default function ChatInput({ disabled = false, onSend }) {
                     />
                     Auto-save active
                 </Typography>
-                <Typography variant="caption" sx={{ display: { xs: "none", sm: "block" } }}>
+
+                <Typography
+                    variant="caption"
+                    sx={{
+                        display: {
+                            xs: "none",
+                            sm: "block"
+                        }
+                    }}
+                >
                     Press Ctrl + Enter to send
                 </Typography>
             </Box>

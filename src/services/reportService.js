@@ -7,7 +7,9 @@ export function getReportSummary(params) {
 }
 
 export function getReportMessages(params) {
+    // params: { page, size, fromDate, toDate, status, search, sort }
     return axiosClient.get("/reports/messages", {
         params
     });
 }
+

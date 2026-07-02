@@ -1,4 +1,4 @@
-import { Box, Card, Chip, LinearProgress, Stack, Skeleton, Tooltip, Typography } from "@mui/material";
+﻿import { Box, Card, Chip, LinearProgress, Stack, Skeleton, Tooltip, Typography } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorOutlineIcon from "@mui/icons-material/Error";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
@@ -112,6 +112,7 @@ function formatValue(value, progress) {
 function SummaryCard({ config, value, loading }) {
     const { label, icon, progress, accent, rateInvert } = config;
     const band = progress ? rateBand(value, { invert: rateInvert }) : null;
+
     const displayValue = formatValue(value, progress);
 
     const accentColor = (theme) => {
@@ -310,3 +311,6 @@ export default function ReportsSummaryCards({ summary, summaryHasData, loading, 
         </Stack>
     );
 }
+
+
+

@@ -1,383 +1,210 @@
-import { Alert, Box, Button, Chip, IconButton, Stack, Tooltip, Typography, useTheme } from "@mui/material";
-import { DataGrid, GridToolbarContainer, GridToolbarExport } from "@mui/x-data-grid";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import CircleIcon from "@mui/icons-material/Circle";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import InboxIcon from "@mui/icons-material/Inbox";
-import CheckIcon from "@mui/icons-material/Check";
-import { useState } from "react";
+﻿import { useMemo } from "react";
+import { DataGrid } from "@mui/x-data-grid";
 import { formatDateTimeIST } from "../../utils/time";
-import { formatPhoneNumber } from "../../utils/format";
+import {
+    Box,
+    Paper,
+    TextField,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControl,
+    Button,
+    Stack,
+    Typography
+} from "@mui/material";
 
-const statusColor = {
-    SENT: "info",
-    DELIVERED: "success",
-    READ: "success",
-    FAILED: "error"
-};
-
-function CopyableCell({ value, sx }) {
-    const [copied, setCopied] = useState(false);
-    const display = value || "—";
-
-    const handleCopy = async (event) => {
-        event.stopPropagation();
-        if (!value) return;
-        try {
-            await navigator.clipboard.writeText(String(value));
-            setCopied(true);
-            window.setTimeout(() => setCopied(false), 1500);
-        } catch {
-            // Clipboard rejected (e.g. insecure context). Fail silently — the
-            // user can still see and select the text.
-        }
-    };
-
-    return (
-        <Box
-            sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 0.5,
-                width: "100%",
-                ...sx
-            }}
-        >
-            <Tooltip title={display} placement="top" arrow>
-                <Typography
-                    variant="body2"
-                    sx={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        minWidth: 0,
-                        flex: 1
-                    }}
-                >
-                    {display}
-                </Typography>
-            </Tooltip>
-            {value ? (
-                <Tooltip title={copied ? "Copied" : "Copy"} placement="top" arrow>
-                    <IconButton
-                        size="small"
-                        onClick={handleCopy}
-                        sx={{
-                            p: 0.25,
-                            color: copied ? "success.main" : "text.secondary",
-                            opacity: 0.4,
-                            transition: "opacity 120ms ease, color 120ms ease",
-                            ".MuiDataGrid-row:hover &": { opacity: 1 }
-                        }}
-                    >
-                        {copied ? <CheckIcon sx={{ fontSize: 14 }} /> : <ContentCopyIcon sx={{ fontSize: 14 }} />}
-                    </IconButton>
-                </Tooltip>
-            ) : null}
-        </Box>
-    );
-}
-
-function PhoneCell({ value }) {
-    return <Typography variant="body2">{formatPhoneNumber(value) || "—"}</Typography>;
-}
-
-function TimestampCell({ value }) {
-    const formatted = formatDateTimeIST(value);
-    return (
-        <Tooltip title={value || ""} placement="top" arrow disableHoverListener={!value}>
-            <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
-                {formatted || "—"}
-            </Typography>
-        </Tooltip>
-    );
-}
-
-function StatusCell({ value }) {
-    const color = statusColor[value] || "primary";
-    return (
-        <Chip
-            size="small"
-            label={(value || "—").toLowerCase()}
-            color={color}
-            variant="outlined"
-            icon={<CircleIcon sx={{ fontSize: 10, color: (theme) => `${theme.palette[color].main} !important` }} />}
-            sx={{ textTransform: "capitalize", fontWeight: 600 }}
-        />
-    );
-}
+const STATUS_OPTIONS = ["ACCEPTED", "DELIVERED", "READ", "SENT", "FAILED"];
+const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
 const columns = [
-    {
-        field: "whatsappMessageId",
-        headerName: "WhatsApp Message ID",
-        flex: 1.2,
-        minWidth: 200,
-        renderCell: ({ value }) => <CopyableCell value={value} />
-    },
-    {
-        field: "phoneNumber",
-        headerName: "Contact",
-        flex: 0.8,
-        minWidth: 140,
-        renderCell: ({ value }) => <PhoneCell value={value} />
-    },
-    {
-        field: "toPhoneNumber",
-        headerName: "Recipient",
-        flex: 0.8,
-        minWidth: 140,
-        renderCell: ({ value }) => <PhoneCell value={value} />
-    },
-    {
-        field: "templateName",
-        headerName: "Template",
-        flex: 1,
-        minWidth: 160,
-        renderCell: ({ value }) => (
-            <Typography variant="body2" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {value || "—"}
-            </Typography>
-        )
-    },
-    {
-        field: "messageType",
-        headerName: "Type",
-        flex: 0.7,
-        minWidth: 110,
-        renderCell: ({ value }) => (
-            <Typography variant="body2" sx={{ textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 600 }}>
-                {value || "—"}
-            </Typography>
-        )
-    },
-    {
-        field: "currentStatus",
-        headerName: "Status",
-        flex: 0.9,
-        minWidth: 130,
-        renderCell: ({ value }) => <StatusCell value={value} />
-    },
+    { field: "id", headerName: "ID", width: 240 },
+    { field: "whatsappMessageId", headerName: "WhatsApp Message ID", width: 360 },
+    { field: "contactId", headerName: "Contact ID", width: 180 },
+    { field: "phoneNumber", headerName: "From", width: 140 },
+    { field: "toPhoneNumber", headerName: "To", width: 140 },
+    { field: "templateName", headerName: "Template", width: 160 },
+    { field: "campaignId", headerName: "Campaign", width: 160 },
+    { field: "messageBody", headerName: "Message", minWidth: 280, flex: 1 },
+    { field: "messageType", headerName: "Type", width: 120 },
+    { field: "currentStatus", headerName: "Status", width: 140 },
     {
         field: "sentAt",
-        headerName: "Sent",
-        flex: 1,
-        minWidth: 170,
-        renderCell: ({ value }) => <TimestampCell value={value} />
+        headerName: "Sent At",
+        width: 180,
+        valueFormatter: (value) => (value ? formatDateTimeIST(value) : "-")
     },
     {
         field: "deliveredAt",
-        headerName: "Delivered",
-        flex: 1,
-        minWidth: 170,
-        renderCell: ({ value }) => <TimestampCell value={value} />
+        headerName: "Delivered At",
+        width: 180,
+        valueFormatter: (value) => (value ? formatDateTimeIST(value) : "-")
     },
     {
         field: "readAt",
-        headerName: "Read",
-        flex: 1,
-        minWidth: 170,
-        renderCell: ({ value }) => <TimestampCell value={value} />
+        headerName: "Read At",
+        width: 180,
+        valueFormatter: (value) => (value ? formatDateTimeIST(value) : "-")
     },
     {
-        field: "failureReason",
-        headerName: "Failure Reason",
-        flex: 1.1,
-        minWidth: 180,
-        renderCell: ({ value }) => <CopyableCell value={value} />
+        field: "failedAt",
+        headerName: "Failed At",
+        width: 180,
+        valueFormatter: (value) => (value ? formatDateTimeIST(value) : "-")
     },
+    { field: "failureReason", headerName: "Failure Reason", width: 240 },
     {
         field: "createdAt",
-        headerName: "Created",
-        flex: 1,
-        minWidth: 170,
-        renderCell: ({ value }) => <TimestampCell value={value} />
+        headerName: "Created At",
+        width: 180,
+        valueFormatter: (value) => (value ? formatDateTimeIST(value) : "-")
+    },
+    {
+        field: "updatedAt",
+        headerName: "Updated At",
+        width: 180,
+        valueFormatter: (value) => (value ? formatDateTimeIST(value) : "-")
     }
 ];
 
-function CustomToolbar({ onRefresh }) {
-    return (
-        <GridToolbarContainer sx={{ justifyContent: "flex-end", px: 2, pt: 1, pb: 0 }}>
-            <GridToolbarExport csvOptions={{ fileName: "message-reports", utf8WithBom: true }} />
-            <Button
-                startIcon={<RefreshIcon />}
-                onClick={onRefresh}
-                sx={{ textTransform: "none", ml: 1 }}
-                size="small"
-            >
-                Refresh
-            </Button>
-        </GridToolbarContainer>
-    );
-}
+function buildRow(message, page, index) {
+    const id =
+        message.id ??
+        message.reportId ??
+        message.whatsappMessageId ??
+        message.messageId ??
+        `${page}-${index}`;
 
-function NoRowsOverlay({ onReset, hasFilters }) {
-    return (
-        <Box
-            sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 1.5,
-                py: 6,
-                color: "text.secondary"
-            }}
-        >
-            <Box
-                sx={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: "50%",
-                    display: "grid",
-                    placeItems: "center",
-                    background: "rgba(255,255,255,0.04)",
-                    color: "text.secondary"
-                }}
-            >
-                <InboxIcon sx={{ fontSize: 28 }} />
-            </Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "text.primary" }}>
-                No messages match your filters
-            </Typography>
-            <Typography variant="body2">
-                Try widening the date range or removing a filter to see more results.
-            </Typography>
-            {hasFilters ? (
-                <Button variant="outlined" size="small" onClick={onReset} sx={{ mt: 1 }}>
-                    Clear filters
-                </Button>
-            ) : null}
-        </Box>
-    );
+    return {
+        id,
+        whatsappMessageId: message.whatsappMessageId,
+        contactId: message.contactId,
+        phoneNumber: message.phoneNumber,
+        toPhoneNumber: message.toPhoneNumber,
+        templateName: message.templateName,
+        campaignId: message.campaignId,
+        messageBody: message.messageBody,
+        messageType: message.messageType,
+        currentStatus: message.currentStatus,
+        sentAt: message.sentAt,
+        deliveredAt: message.deliveredAt,
+        readAt: message.readAt,
+        failedAt: message.failedAt,
+        failureReason: message.failureReason,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt
+    };
 }
 
 export default function ReportsTable({
     messages,
     loading,
     error,
-    page,
-    pageSize,
-    rowCount,
-    sortModel,
-    onPageChange,
-    onSortModelChange,
-    onRowClick,
-    onRefresh,
-    onReset,
-    hasFilters,
-    lastUpdated
+    paginationModel,
+    total,
+    filters,
+    onFiltersChange,
+    onPaginationModelChange,
+    onSearch
 }) {
-    const theme = useTheme();
-    const safeRowCount = Number.isFinite(rowCount) ? rowCount : 0;
-    const start = safeRowCount === 0 ? 0 : page * pageSize + 1;
-    const end = Math.min(safeRowCount, (page + 1) * pageSize);
-    const showingLabel =
-        safeRowCount === 0 ? "No messages" : `Showing ${start}–${end} of ${safeRowCount.toLocaleString("en-IN")}`;
+    const rows = useMemo(() => {
+        if (!Array.isArray(messages)) return [];
+        return messages.map((message, index) =>
+            buildRow(message, paginationModel.page, index)
+        );
+    }, [messages, paginationModel.page]);
 
     return (
-        <Box sx={{ width: "100%", minHeight: 560, borderRadius: 3, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
-            <Box sx={{ px: 3, py: 2, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
-                <Box>
-                    <Typography variant="h6">Message Reports</Typography>
-                    <Typography color="text.secondary" variant="body2">
-                        Review message history with server-side pagination and sorting.
-                    </Typography>
-                </Box>
-                <Stack
-                    spacing={2}
-                    sx={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        flexWrap: "wrap"
-                    }}
-                >
-                    <Typography variant="caption" color="text.secondary">
-                        {showingLabel}
-                    </Typography>
-                    {lastUpdated ? (
-                        <Typography variant="caption" color="text.secondary">
-                            Last updated {formatDateTimeIST(lastUpdated)}
-                        </Typography>
-                    ) : null}
-                    <Tooltip title="Refresh" arrow>
-                        <span>
-                            <IconButton size="small" onClick={onRefresh} disabled={loading}>
-                                <RefreshIcon fontSize="small" />
-                            </IconButton>
-                        </span>
-                    </Tooltip>
-                </Stack>
-            </Box>
+        <Box>
+            <FilterBar
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+                onSearch={onSearch}
+            />
+
+            <Paper sx={{ width: "100%" }}>
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    loading={loading}
+                    getRowId={(row) => row.id}
+                    paginationMode="server"
+                    paginationModel={paginationModel}
+                    rowCount={Number.isFinite(total) ? total : 0}
+                    onPaginationModelChange={onPaginationModelChange}
+                    pageSizeOptions={PAGE_SIZE_OPTIONS}
+                    disableRowSelectionOnClick
+                    sx={{ border: 0, minHeight: 360 }}
+                />
+            </Paper>
 
             {error ? (
-                <Box sx={{ px: 3, pb: 2 }}>
-                    <Alert severity="error" action={onRefresh ? <Button color="inherit" size="small" onClick={onRefresh}>Retry</Button> : null}>
-                        {error}
-                    </Alert>
-                </Box>
+                <Typography color="error" sx={{ mt: 2 }}>
+                    {error}
+                </Typography>
             ) : null}
-
-            <div style={{ width: "100%", height: 520 }}>
-                <DataGrid
-                    rows={messages}
-                    columns={columns}
-                    rowCount={rowCount}
-                    loading={loading}
-                    paginationMode="server"
-                    sortingMode="server"
-                    disableColumnFilter
-                    disableSelectionOnClick
-                    pageSizeOptions={[10, 20, 50]}
-                    paginationModel={{ page, pageSize }}
-                    sortModel={sortModel}
-                    autoHeight={false}
-                    rowHeight={60}
-                    getRowId={(row) => row.id ?? row.whatsappMessageId}
-                    onPaginationModelChange={(model) => {
-                        if (model.page !== page || model.pageSize !== pageSize) {
-                            onPageChange(model.page, model.pageSize);
-                        }
-                    }}
-                    onSortModelChange={onSortModelChange}
-                    onRowClick={onRowClick}
-                    slots={{
-                        toolbar: CustomToolbar,
-                        noRowsOverlay: () => <NoRowsOverlay onReset={onReset} hasFilters={hasFilters} />
-                    }}
-                    slotProps={{
-                        toolbar: { onRefresh },
-                        loadingOverlay: { variant: "linear-progress" }
-                    }}
-                    sx={{
-                        border: "none",
-                        ".MuiDataGrid-main": {
-                            background: theme.palette.background.paper
-                        },
-                        ".MuiDataGrid-columnHeaders": {
-                            background: theme.palette.background.default,
-                            position: "sticky",
-                            top: 0,
-                            zIndex: 2
-                        },
-                        ".MuiDataGrid-columnHeaderTitle": {
-                            fontWeight: 700
-                        },
-                        ".MuiDataGrid-cell": {
-                            display: "flex",
-                            alignItems: "center"
-                        },
-                        ".MuiDataGrid-footerContainer": {
-                            borderTop: "1px solid rgba(255,255,255,0.08)"
-                        },
-                        ".MuiDataGrid-row:hover": {
-                            backgroundColor: "rgba(185,174,255,0.06)",
-                            cursor: "pointer"
-                        }
-                    }}
-                />
-            </div>
         </Box>
+    );
+}
+
+function FilterBar({ filters, onFiltersChange, onSearch }) {
+    const update = (patch) => onFiltersChange({ ...filters, ...patch });
+
+    return (
+        <Paper sx={{ p: 2, mb: 2 }}>
+            <Stack
+                spacing={2}
+                sx={{
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: { xs: "stretch", sm: "center" }
+                }}
+            >
+                <TextField
+                    label="From"
+                    type="date"
+                    size="small"
+                    slotProps={{ inputLabel: { shrink: true } }}
+                    value={filters.fromDate || ""}
+                    onChange={(event) => update({ fromDate: event.target.value })}
+                />
+                <TextField
+                    label="To"
+                    type="date"
+                    size="small"
+                    slotProps={{ inputLabel: { shrink: true } }}
+                    value={filters.toDate || ""}
+                    onChange={(event) => update({ toDate: event.target.value })}
+                />
+                <FormControl size="small" sx={{ minWidth: 140 }}>
+                    <InputLabel id="status-label">Status</InputLabel>
+                    <Select
+                        labelId="status-label"
+                        label="Status"
+                        value={filters.status ?? ""}
+                        onChange={(event) => update({ status: event.target.value })}
+                    >
+                        <MenuItem value="">Any</MenuItem>
+                        {STATUS_OPTIONS.map((status) => (
+                            <MenuItem key={status} value={status}>
+                                {status.charAt(0) + status.slice(1).toLowerCase()}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <TextField
+                    label="Search"
+                    size="small"
+                    value={filters.search || ""}
+                    onChange={(event) => update({ search: event.target.value })}
+                    onKeyDown={(event) => {
+                        if (event.key === "Enter") onSearch();
+                    }}
+                    sx={{ flex: 1, minWidth: 160 }}
+                />
+                <Button variant="contained" onClick={onSearch}>
+                    Apply
+                </Button>
+            </Stack>
+        </Paper>
     );
 }
