@@ -213,6 +213,7 @@ export default function ReportsFilters({ filters, onChange, onApply, onReset, lo
                         onChange={(event) => onChange({ ...filters, fromDate: event.target.value })}
                         slotProps={{ inputLabel: { shrink: true } }}
                         fullWidth
+                        sx={{ minWidth: 140 }}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
@@ -224,6 +225,7 @@ export default function ReportsFilters({ filters, onChange, onApply, onReset, lo
                         onChange={(event) => onChange({ ...filters, toDate: event.target.value })}
                         slotProps={{ inputLabel: { shrink: true } }}
                         fullWidth
+                        sx={{ minWidth: 140 }}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
@@ -234,6 +236,7 @@ export default function ReportsFilters({ filters, onChange, onApply, onReset, lo
                         value={filters.status}
                         onChange={(event) => onChange({ ...filters, status: event.target.value })}
                         fullWidth
+                        sx={{ minWidth: 140 }}
                     >
                         {STATUS_OPTIONS.map((option) => (
                             <MenuItem key={option.value} value={option.value}>
@@ -250,6 +253,7 @@ export default function ReportsFilters({ filters, onChange, onApply, onReset, lo
                         value={filters.messageType}
                         onChange={(event) => onChange({ ...filters, messageType: event.target.value })}
                         fullWidth
+                        sx={{ minWidth: 160 }}
                     >
                         {MESSAGE_TYPE_OPTIONS.map((option) => (
                             <MenuItem key={option.value} value={option.value}>
@@ -274,6 +278,7 @@ export default function ReportsFilters({ filters, onChange, onApply, onReset, lo
                             }
                         }}
                         fullWidth
+                        sx={{ minWidth: 140 }}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
@@ -284,6 +289,7 @@ export default function ReportsFilters({ filters, onChange, onApply, onReset, lo
                         value={filters.templateName}
                         onChange={(event) => onChange({ ...filters, templateName: event.target.value })}
                         fullWidth
+                        sx={{ minWidth: 140 }}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
@@ -294,6 +300,7 @@ export default function ReportsFilters({ filters, onChange, onApply, onReset, lo
                         value={filters.campaign}
                         onChange={(event) => onChange({ ...filters, campaign: event.target.value })}
                         fullWidth
+                        sx={{ minWidth: 140 }}
                     />
                 </Grid>
             </Grid>

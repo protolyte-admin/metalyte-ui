@@ -1,4 +1,4 @@
-import { Alert, Box, Button, Chip, IconButton, Stack, Tooltip, Typography, useTheme } from "@mui/material";
+import { Alert, Box, Button, Chip, IconButton, Stack, Tooltip, Typography, useTheme, Pagination, Select, MenuItem } from "@mui/material";
 import { DataGrid, GridToolbarContainer, GridToolbarExport } from "@mui/x-data-grid";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CircleIcon from "@mui/icons-material/Circle";
@@ -319,7 +319,7 @@ export default function ReportsTable({
                 </Box>
             ) : null}
 
-            <div style={{ width: "100%", height: 520 }}>
+            <div style={{ width: "100%", height: 450 }}>
                 <DataGrid
                     rows={messages}
                     columns={columns}
@@ -378,6 +378,48 @@ export default function ReportsTable({
                     }}
                 />
             </div>
+
+            {/* Custom Pagination UI */}
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    px: 3,
+                    py: 2,
+                    borderTop: "1px solid rgba(255,255,255,0.08)",
+                    background: theme.palette.background.default
+                }}
+            >
+                <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="caption" color="text.secondary">
+                        {safeRowCount === 0
+                            ? "No messages"
+                            : `Showing ${start}–${end} of ${safeRowCount.toLocaleString("en-IN")}`}
+                    </Typography>
+                    <Select
+                        value={pageSize}
+                        onChange={(event) => onPageChange(0, event.target.value)}
+                        size="small"
+                        disabled={loading}
+                        sx={{ minWidth: 80 }}
+                    >
+                        <MenuItem value={10}>10</MenuItem>
+                        <MenuItem value={20}>20</MenuItem>
+                        <MenuItem value={50}>50</MenuItem>
+                    </Select>
+                </Stack>
+                <Pagination
+                    count={Math.ceil(safeRowCount / pageSize)}
+                    page={page + 1}
+                    onChange={(event, newPage) => onPageChange(newPage - 1, pageSize)}
+                    disabled={loading}
+                    color="primary"
+                    size="small"
+                    showFirstButton
+                    showLastButton
+                />
+            </Box>
         </Box>
     );
 }

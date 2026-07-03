@@ -3,7 +3,13 @@ import {
     CircularProgress,
     IconButton,
     Tooltip,
-    Typography
+    Typography,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow
 } from "@mui/material";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubble";
 import { useNavigate } from "react-router-dom";
@@ -36,125 +42,129 @@ function ContactRow({ contact, onOpen }) {
     const timeLabel = updatedAt ? formatRelativeShortIST(updatedAt) : "";
 
     return (
-        <Box
+        <TableRow
             onClick={() => onOpen?.(contact)}
             sx={{
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", md: "auto 1.4fr 1fr 1.4fr auto auto" },
-                alignItems: "center",
-                gap: { xs: 1.5, md: 3 },
-                px: { xs: 2, md: 3 },
-                py: 2,
                 cursor: "pointer",
-                borderBottom: "1px solid rgba(255,255,255,0.05)",
                 transition: "background 120ms ease",
                 "&:hover": { background: "rgba(185,174,255,0.04)" }
             }}
         >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, minWidth: 0 }}>
-                <MarqAvatar size={44}>{getInitials(name)}</MarqAvatar>
-                <Box sx={{ minWidth: 0 }}>
-                    <Typography
-                        sx={{
-                            color: "text.primary",
-                            fontWeight: 800,
-                            fontSize: 17,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap"
-                        }}
-                    >
-                        {name}
-                    </Typography>
-                    {notes && (
+            <TableCell sx={{ width: 350, minWidth: 350, px: 3, py: 2, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <MarqAvatar size={44}>{getInitials(name)}</MarqAvatar>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
                         <Typography
                             sx={{
-                                color: "text.secondary",
-                                fontSize: 13,
+                                color: "text.primary",
+                                fontWeight: 800,
+                                fontSize: 17,
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                maxWidth: 280
+                                whiteSpace: "nowrap"
                             }}
                         >
-                            {notes}
+                            {name}
                         </Typography>
-                    )}
+                        {notes && (
+                            <Typography
+                                sx={{
+                                    color: "text.secondary",
+                                    fontSize: 13,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap"
+                                }}
+                            >
+                                {notes}
+                            </Typography>
+                        )}
+                    </Box>
                 </Box>
-            </Box>
+            </TableCell>
 
-            <Typography
-                sx={{
-                    color: "text.primary",
-                    fontSize: 15,
-                    fontVariantNumeric: "tabular-nums",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
-                }}
-            >
-                {phone || "—"}
-            </Typography>
-
-            <Typography
-                sx={{
-                    color: email ? "text.primary" : "text.secondary",
-                    fontSize: 15,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
-                }}
-            >
-                {email || "No email"}
-            </Typography>
-
-            <Typography
-                sx={{
-                    color: "text.secondary",
-                    fontSize: 14,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
-                }}
-            >
-                {parseTimestamp(updatedAt)
-                    ? new Intl.DateTimeFormat("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "numeric",
-                        minute: "2-digit",
-                        hour12: true,
-                        timeZone: "Asia/Kolkata"
-                    }).format(parseTimestamp(updatedAt))
-                    : "—"}
-            </Typography>
-
-            <Typography
-                sx={{
-                    color: "text.secondary",
-                    fontSize: 13,
-                    whiteSpace: "nowrap"
-                }}
-            >
-                {timeLabel}
-            </Typography>
-
-            <Tooltip title="Start conversation">
-                <IconButton
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        navigate("/", { state: { openPhoneNumber: contact.phoneNumber } });
-                    }}
+            <TableCell sx={{ width: 100, minWidth: 100, px: 3, py: 2, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                <Typography
                     sx={{
-                        color: "#B9AEFF",
-                        "&:hover": { bgcolor: "rgba(185,174,255,0.12)" }
+                        color: "text.primary",
+                        fontSize: 15,
+                        fontVariantNumeric: "tabular-nums",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap"
                     }}
                 >
-                    <ChatBubbleOutlineIcon fontSize="small" />
-                </IconButton>
-            </Tooltip>
-        </Box>
+                    {phone || "—"}
+                </Typography>
+            </TableCell>
+
+            <TableCell sx={{ width: 180, minWidth: 180, px: 3, py: 2, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                <Typography
+                    sx={{
+                        color: email ? "text.primary" : "text.secondary",
+                        fontSize: 15,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap"
+                    }}
+                >
+                    {email || "No email"}
+                </Typography>
+            </TableCell>
+
+            <TableCell sx={{ width: 160, minWidth: 160, px: 3, py: 2, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                <Typography
+                    sx={{
+                        color: "text.secondary",
+                        fontSize: 14,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap"
+                    }}
+                >
+                    {parseTimestamp(updatedAt)
+                        ? new Intl.DateTimeFormat("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                            timeZone: "Asia/Kolkata"
+                        }).format(parseTimestamp(updatedAt))
+                        : "—"}
+                </Typography>
+            </TableCell>
+
+            <TableCell sx={{ width: 100, minWidth: 100, px: 3, py: 2, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                <Typography
+                    sx={{
+                        color: "text.secondary",
+                        fontSize: 13,
+                        whiteSpace: "nowrap"
+                    }}
+                >
+                    {timeLabel}
+                </Typography>
+            </TableCell>
+
+            <TableCell sx={{ width: 40, minWidth: 40, px: 3, py: 2, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                <Tooltip title="Start conversation">
+                    <IconButton
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            navigate("/", { state: { openPhoneNumber: contact.phoneNumber } });
+                        }}
+                        sx={{
+                            color: "#B9AEFF",
+                            "&:hover": { bgcolor: "rgba(185,174,255,0.12)" }
+                        }}
+                    >
+                        <ChatBubbleOutlineIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
+            </TableCell>
+        </TableRow>
     );
 }
 
@@ -245,51 +255,64 @@ export default function ContactList({
     }
 
     return (
-        <Box
+        <TableContainer
             sx={{
                 border: "1px solid rgba(255,255,255,0.06)",
                 borderRadius: 2,
-                overflow: "hidden",
-                bgcolor: "rgba(8,22,47,0.5)"
+                overflow: "auto",
+                bgcolor: "rgba(8,22,47,0.5)",
+                height: 600
             }}
         >
-            <Box
-                sx={{
-                    display: { xs: "none", md: "grid" },
-                    gridTemplateColumns: "auto 1.4fr 1fr 1.4fr auto auto",
-                    gap: 3,
-                    px: 3,
-                    py: 1.5,
-                    borderBottom: "1px solid rgba(255,255,255,0.08)",
-                    color: "text.secondary",
-                    fontSize: 12,
-                    fontWeight: 800,
-                    letterSpacing: 1.4,
-                    textTransform: "uppercase"
-                }}
-            >
-                <Box>Contact</Box>
-                <Box>Phone</Box>
-                <Box>Email</Box>
-                <Box>Updated</Box>
-                <Box>Last seen</Box>
-                <Box />
-            </Box>
-
-            {contacts.map((contact) => (
-                <ContactRow
-                    key={contact.id || contact.contactId || contact.phoneNumber}
-                    contact={contact}
-                    onOpen={onOpen}
-                />
-            ))}
-
-            <LoadMoreRow
-                visible
-                hasMore={hasMore}
-                loadingMore={loadingMore}
-                sentinelRef={sentinelRef}
-            />
-        </Box>
+            <Table stickyHeader sx={{ minWidth: 930 }}>
+                <TableHead>
+                    <TableRow sx={{ display: { xs: "none", md: "table-row" } }}>
+                        <TableCell sx={{ width: 350, minWidth: 350, px: 3, py: 1.5, borderBottom: "1px solid rgba(255,255,255,0.08)", color: "text.secondary", fontSize: 12, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", bgcolor: "#08162F" }}>Contact</TableCell>
+                        <TableCell sx={{ width: 100, minWidth: 100, px: 3, py: 1.5, borderBottom: "1px solid rgba(255,255,255,0.08)", color: "text.secondary", fontSize: 12, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", bgcolor: "#08162F" }}>Phone</TableCell>
+                        <TableCell sx={{ width: 180, minWidth: 180, px: 3, py: 1.5, borderBottom: "1px solid rgba(255,255,255,0.08)", color: "text.secondary", fontSize: 12, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", bgcolor: "#08162F" }}>Email</TableCell>
+                        <TableCell sx={{ width: 160, minWidth: 160, px: 3, py: 1.5, borderBottom: "1px solid rgba(255,255,255,0.08)", color: "text.secondary", fontSize: 12, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", bgcolor: "#08162F" }}>Updated</TableCell>
+                        <TableCell sx={{ width: 100, minWidth: 100, px: 3, py: 1.5, borderBottom: "1px solid rgba(255,255,255,0.08)", color: "text.secondary", fontSize: 12, fontWeight: 800, letterSpacing: 1.4, textTransform: "uppercase", bgcolor: "#08162F" }}>Last seen</TableCell>
+                        <TableCell sx={{ width: 40, minWidth: 40, px: 3, py: 1.5, borderBottom: "1px solid rgba(255,255,255,0.08)", bgcolor: "#08162F" }} />
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {contacts.map((contact) => (
+                        <ContactRow
+                            key={contact.id || contact.contactId || contact.phoneNumber}
+                            contact={contact}
+                            onOpen={onOpen}
+                        />
+                    ))}
+                    <TableRow>
+                        <TableCell colSpan={6} sx={{ borderBottom: "none", py: 3 }}>
+                            <Box
+                                ref={sentinelRef}
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    gap: 1.5,
+                                    color: "text.secondary",
+                                    fontSize: 13
+                                }}
+                            >
+                                {hasMore ? (
+                                    <>
+                                        <CircularProgress size={16} sx={{ color: "#B9AEFF" }} />
+                                        <Typography sx={{ fontSize: 13 }}>
+                                            {loadingMore ? "Loading next page…" : "Scroll to load more"}
+                                        </Typography>
+                                    </>
+                                ) : (
+                                    <Typography sx={{ fontSize: 13, opacity: 0.7 }}>
+                                        You've reached the end
+                                    </Typography>
+                                )}
+                            </Box>
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </TableContainer>
     );
 }

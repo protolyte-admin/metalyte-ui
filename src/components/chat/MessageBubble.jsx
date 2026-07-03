@@ -100,11 +100,12 @@ export default function MessageBubble({ message }) {
                     boxShadow: "0 16px 30px rgba(0,0,0,0.16)",
                     border: outgoing
                         ? "1px solid rgba(185,174,255,0.2)"
-                        : "1px solid rgba(255,255,255,0.08)"
+                        : "1px solid rgba(255,255,255,0.08)",
+                    overflow: "hidden"
                 }}
             >
                 {text && (
-                    <Typography sx={{ fontSize: 18, lineHeight: 1.48 }}>
+                    <Typography sx={{ fontSize: 18, lineHeight: 1.48, wordWrap: "break-word", overflowWrap: "break-word" }}>
                         {text}
                     </Typography>
                 )}

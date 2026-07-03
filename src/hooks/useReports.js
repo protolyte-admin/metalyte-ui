@@ -158,6 +158,12 @@ function statusCountsFromArray(source) {
 function findNestedArray(payload) {
     if (!payload || typeof payload !== "object") return [];
 
+    // Handle wrapper structure where data is nested under payload.data
+    if (payload.data && typeof payload.data === "object") {
+        const nestedResult = findNestedArray(payload.data);
+        if (nestedResult.length) return nestedResult;
+    }
+
     const direct =
         asArray(payload) ||
         asArray(payload.content) ||
@@ -470,10 +476,11 @@ export default function useReports() {
         try {
             const response = await getReportSummary(queryParams);
             const summaryData = normalizeSummary(findSummaryPayload(response.data));
-            if (isMountedRef.current) {
+            // if (isMountedRef.current) {
                 setSummary(summaryData);
                 setSummaryUpdatedAt(new Date());
-            }
+            // }
+            setSummaryLoading(false);
         } catch (error) {
             if (isMountedRef.current) {
                 setSummaryError(
@@ -497,11 +504,12 @@ export default function useReports() {
         try {
             const response = await getReportMessages(queryParams);
             const pageData = normalizeMessagePage(response, page);
-            if (isMountedRef.current) {
+            // if (isMountedRef.current) {
                 setMessages(pageData.rows);
                 setRowCount(pageData.totalElements);
                 setTableUpdatedAt(new Date());
-            }
+            // }
+            setTableLoading(false);
         } catch (error) {
             if (isMountedRef.current) {
                 setTableError(
@@ -539,6 +547,8 @@ export default function useReports() {
         (nextFilters = filters) => {
             setActiveFilters(nextFilters);
             setPage(0);
+            // Force immediate refresh to bypass debounce
+            setRefreshIndex((current) => current + 1);
         },
         [filters]
     );
