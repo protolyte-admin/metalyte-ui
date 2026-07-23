@@ -17,7 +17,7 @@ export default function TopBar({ onNewMessage }) {
                 justifyContent: "space-between",
                 gap: 2,
                 borderBottom: "1px solid rgba(255,255,255,0.08)",
-                background: "#020B1F"
+                background: "#01030A"
             }}
         >
             <TextField
@@ -40,7 +40,7 @@ export default function TopBar({ onNewMessage }) {
                     maxWidth: 360,
                     "& .MuiOutlinedInput-root": {
                         height: 50,
-                        bgcolor: "#24344F"
+                        bgcolor: "#121B31"
                     }
                 }}
             />

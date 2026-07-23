@@ -7,8 +7,8 @@ export default function MarqCard({ sx, ...props }) {
             sx={{
                 border: "1px solid rgba(255,255,255,0.08)",
                 background:
-                    "linear-gradient(145deg, rgba(22,35,61,0.96), rgba(14,25,46,0.98))",
-                boxShadow: "0 28px 80px rgba(0,0,0,0.34)",
+                    "linear-gradient(145deg, rgba(12,19,36,0.98), rgba(5,10,24,0.98))",
+                boxShadow: "0 28px 80px rgba(0,0,0,0.42)",
                 ...sx
             }}
             {...props}

@@ -95,7 +95,7 @@ export default function MessageBubble({ message }) {
                     px: 2.5,
                     py: 2,
                     borderRadius: 2,
-                    background: outgoing ? "#5B4BFF" : "#24344F",
+                    background: outgoing ? "#2F18F6" : "#121B31",
                     color: "text.primary",
                     boxShadow: "0 16px 30px rgba(0,0,0,0.16)",
                     border: outgoing

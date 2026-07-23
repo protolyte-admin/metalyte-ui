@@ -92,7 +92,7 @@ export default function LoginForm({
                     type="button"
                     underline="none"
                     sx={{
-                        color: "#CDC7FF",
+                        color: "#7B6DFF",
                         fontSize: 13,
                         fontWeight: 800
                     }}

@@ -336,14 +336,14 @@ export default function ContactsPage() {
                             startIcon={<AddIcon />}
                             onClick={() => setCreateOpen(true)}
                             sx={{
-                                bgcolor: "#B9AEFF",
+                                bgcolor: "#FFFFFF",
                                 color: "#020B1F",
                                 fontWeight: 800,
                                 px: 3,
                                 minHeight: 52,
                                 borderRadius: 2,
                                 letterSpacing: 0.4,
-                                "&:hover": { bgcolor: "#C9C2FF" }
+                                "&:hover": { bgcolor: "#F4F5FF" }
                             }}
                         >
                             Add contact

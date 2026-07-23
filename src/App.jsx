@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import InboxPage from "./pages/InboxPage";
 import ContactsPage from "./pages/ContactsPage";
 import ReportsPage from "./pages/ReportsPage";
+import BillingPage from "./pages/BillingPage";
 import LogoutSuccess from "./pages/auth/LogoutSuccess";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import PublicRoute from "./components/auth/PublicRoute";
@@ -50,6 +51,14 @@ function App() {
                 />
 
                 <Route
+                    path="/billing"
+                    element={
+                        <ProtectedRoute>
+                            <BillingPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
                     path="/contacts"
                     element={
                         <ProtectedRoute>
@@ -66,3 +75,4 @@ function App() {
 }
 
 export default App;
+

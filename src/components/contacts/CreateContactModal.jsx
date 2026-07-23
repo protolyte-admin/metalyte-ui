@@ -218,13 +218,13 @@ export default function CreateContactModal({ open, onClose, onCreate }) {
                         variant="contained"
                         disabled={submitting}
                         sx={{
-                            bgcolor: "#B9AEFF",
+                            bgcolor: "#FFFFFF",
                             color: "#020B1F",
                             fontWeight: 800,
                             px: 3,
                             minHeight: 48,
                             letterSpacing: 0.4,
-                            "&:hover": { bgcolor: "#C9C2FF" },
+                            "&:hover": { bgcolor: "#F4F5FF" },
                             "&.Mui-disabled": {
                                 bgcolor: "rgba(185,174,255,0.35)",
                                 color: "rgba(2,11,31,0.55)"

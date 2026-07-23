@@ -1,23 +1,23 @@
-import { Avatar, Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
+import { Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import ContactsIcon from "@mui/icons-material/Contacts";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import HelpOutlineIcon from "@mui/icons-material/Help";
 import InboxIcon from "@mui/icons-material/Inbox";
 import LogoutIcon from "@mui/icons-material/Logout";
-import SettingsIcon from "@mui/icons-material/Settings";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import BrandLogo from "../common/BrandLogo";
 import MarqAvatar from "../common/MarqAvatar";
 import { useAuth } from "../../context/useAuth";
 
 const navItems = [
     { label: "Inbox", icon: <InboxIcon />, path: "/" },
     { label: "Reports", icon: <BarChartIcon />, path: "/reports" },
-    { label: "Contacts", icon: <ContactsIcon />, path: "/contacts" }
+    { label: "Contacts", icon: <ContactsIcon />, path: "/contacts" },
+    { label: "Billing & Subscription", icon: <ReceiptLongOutlinedIcon />, path: "/billing" }
 ];
 
 function isActive(item, location) {
@@ -34,16 +34,8 @@ export default function SideNav() {
     const [collapsed, setCollapsed] = useState(false);
 
     const handleLogout = () => {
-        // logout() wipes storage + context. Then we REPLACE the current history
-        // entry with /logout, then REPLACE again with /login. That way:
-        //   stack before: [..., /inbox, currentProtected]
-        //   stack after:  [..., /login]
-        // Back from /login lands on whatever the user came from BEFORE login,
-        // never on a protected URL.
         logout();
         navigate("/logout", { replace: true });
-        // After the LogoutSuccess screen renders its "Return to Login" button,
-        // it will call navigate("/login", { replace: true }).
     };
 
     const labelDisplay = {
@@ -69,74 +61,44 @@ export default function SideNav() {
                     md: collapsed ? 88 : 320
                 },
                 flex: "0 0 auto",
-                background: "#08162F",
-                borderRight: "1px solid rgba(255,255,255,0.08)",
+                background: "#050A18",
+                borderRight: "1px solid rgba(255,255,255,0.09)",
                 display: "flex",
                 flexDirection: "column",
                 transition: "width 180ms ease"
             }}
         >
-            <Box
-                sx={{
-                    p: {
-                        xs: 2,
-                        md: 2
-                    }
-                }}
-            >
+            <Box sx={{ p: { xs: 2, md: collapsed ? 2 : 2.25 } }}>
                 <Box
                     sx={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: collapsed ? "center" : "flex-start",
-                        gap: 2
+                        gap: 1.5
                     }}
                 >
-                    <Avatar
+                    <BrandLogo
+                        compact={collapsed}
                         sx={{
-                            bgcolor: "#B9AEFF",
-                            color: "#020B1F",
-                            borderRadius: 2,
-                            width: 42,
-                            height: 42
+                            width: collapsed ? 48 : 210,
+                            height: collapsed ? 34 : 68,
+                            flex: "0 0 auto"
                         }}
-                    >
-                        <DashboardIcon />
-                    </Avatar>
-
-                    <Box sx={{ display: labelDisplay, minWidth: 0 }}>
-                        <Typography
-                            variant="h4"
-                            sx={{
-                                color: "#DCD6FF",
-                                fontSize: 30,
-                                fontWeight: 800,
-                                whiteSpace: "nowrap"
-                            }}
-                        >
-                            Metalyte
-                        </Typography>
-                        <Typography sx={{ color: "#8F98B6", fontSize: 18 }}>
-                            Business Communication
-                        </Typography>
-                    </Box>
+                    />
 
                     <Tooltip title={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
                         <IconButton
                             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                             onClick={() => setCollapsed((value) => !value)}
                             sx={{
-                                display: {
-                                    xs: "none",
-                                    md: "inline-flex"
-                                },
+                                display: { xs: "none", md: "inline-flex" },
                                 ml: collapsed ? 0 : "auto",
                                 width: 38,
                                 height: 38,
-                                color: "#D3D5E6",
-                                bgcolor: "rgba(255,255,255,0.04)",
+                                color: "#FFFFFF",
+                                bgcolor: "rgba(47,24,246,0.18)",
                                 "&:hover": {
-                                    bgcolor: "rgba(255,255,255,0.08)"
+                                    bgcolor: "rgba(47,24,246,0.3)"
                                 }
                             }}
                         >
@@ -144,26 +106,25 @@ export default function SideNav() {
                         </IconButton>
                     </Tooltip>
                 </Box>
+                <Typography
+                    sx={{
+                        display: labelDisplay,
+                        color: "#BBC3D8",
+                        fontSize: 15,
+                        mt: 1,
+                        ml: 0.25
+                    }}
+                >
+                    Business Communication
+                </Typography>
             </Box>
 
-            <Box
-                sx={{
-                    px: {
-                        xs: 1.5,
-                        md: collapsed ? 1.25 : 2
-                    },
-                    mt: 2
-                }}
-            >
+            <Box sx={{ px: { xs: 1.5, md: collapsed ? 1.25 : 2 }, mt: 1.5 }}>
                 {navItems.map((item) => {
                     const active = isActive(item, location);
                     const enabled = Boolean(item.path);
                     return (
-                        <Tooltip
-                            key={item.label}
-                            title={collapsed ? item.label : ""}
-                            placement="right"
-                        >
+                        <Tooltip key={item.label} title={collapsed ? item.label : ""} placement="right">
                             <Button
                                 fullWidth
                                 startIcon={item.icon}
@@ -171,22 +132,17 @@ export default function SideNav() {
                                 disabled={!enabled}
                                 sx={{
                                     justifyContent: buttonJustify,
-                                    minHeight: 60,
+                                    minHeight: 58,
                                     mb: 1,
-                                    px: {
-                                        xs: 0,
-                                        md: collapsed ? 0 : 2
-                                    },
-                                    bgcolor: active ? "#1B2A44" : "transparent",
-                                    color: active ? "#DCD6FF" : "#D3D5E6",
-                                    borderRight: active
-                                        ? "2px solid #B9AEFF"
-                                        : "2px solid transparent",
+                                    px: { xs: 0, md: collapsed ? 0 : 2 },
+                                    bgcolor: active ? "rgba(47,24,246,0.2)" : "transparent",
+                                    color: active ? "#FFFFFF" : "#D7DBEA",
+                                    borderRight: active ? "2px solid #2F18F6" : "2px solid transparent",
                                     "& .MuiButton-startIcon": {
                                         mr: iconMargin
                                     },
                                     "&:hover": {
-                                        bgcolor: enabled ? "#1B2A44" : "transparent"
+                                        bgcolor: enabled ? "rgba(47,24,246,0.16)" : "transparent"
                                     }
                                 }}
                             >
@@ -201,38 +157,7 @@ export default function SideNav() {
 
             <Box sx={{ flex: 1 }} />
 
-            <Box
-                sx={{
-                    borderTop: "1px solid rgba(255,255,255,0.08)",
-                    p: {
-                        xs: 1.5,
-                        md: collapsed ? 1.25 : 2
-                    }
-                }}
-            >
-                {/* <Tooltip title={collapsed ? "Help" : ""} placement="right">
-                    <Button
-                        fullWidth
-                        startIcon={<HelpOutlineIcon />}
-                        sx={{
-                            justifyContent: buttonJustify,
-                            color: "#D3D5E6",
-                            mb: 1,
-                            px: {
-                                xs: 0,
-                                md: collapsed ? 0 : 2
-                            },
-                            "& .MuiButton-startIcon": {
-                                mr: iconMargin
-                            }
-                        }}
-                    >
-                        <Box component="span" sx={{ display: labelDisplay }}>
-                            Help
-                        </Box>
-                    </Button>
-                </Tooltip> */}
-
+            <Box sx={{ borderTop: "1px solid rgba(255,255,255,0.09)", p: { xs: 1.5, md: collapsed ? 1.25 : 2 } }}>
                 <Tooltip title={collapsed ? "Logout" : ""} placement="right">
                     <Button
                         fullWidth
@@ -240,12 +165,9 @@ export default function SideNav() {
                         onClick={handleLogout}
                         sx={{
                             justifyContent: buttonJustify,
-                            color: "#D3D5E6",
+                            color: "#D7DBEA",
                             mb: 3,
-                            px: {
-                                xs: 0,
-                                md: collapsed ? 0 : 2
-                            },
+                            px: { xs: 0, md: collapsed ? 0 : 2 },
                             "& .MuiButton-startIcon": {
                                 mr: iconMargin
                             }
@@ -262,17 +184,12 @@ export default function SideNav() {
                         display: "flex",
                         alignItems: "center",
                         gap: 1.5,
-                        px: {
-                            xs: 0,
-                            md: collapsed ? 0 : 1
-                        },
+                        px: { xs: 0, md: collapsed ? 0 : 1 },
                         justifyContent: buttonJustify
                     }}
                 >
                     <MarqAvatar size={40}>
-                        {(user?.fullName || user?.name || user?.email || "N")
-                            .slice(0, 1)
-                            .toUpperCase()}
+                        {(user?.fullName || user?.name || user?.email || "N").slice(0, 1).toUpperCase()}
                     </MarqAvatar>
                     <Box sx={{ display: labelDisplay, minWidth: 0 }}>
                         <Typography

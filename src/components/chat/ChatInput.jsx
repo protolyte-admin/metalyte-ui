@@ -131,13 +131,13 @@ export default function ChatInput({ disabled = false, onSend }) {
                                 disabled={disabled || sending || !message.trim()}
                                 onClick={handleSubmit}
                                 sx={{
-                                    bgcolor: "#B9AEFF",
+                                    bgcolor: "#FFFFFF",
                                     color: "#020B1F",
                                     width: 50,
                                     height: 50,
                                     borderRadius: 2,
                                     "&:hover": {
-                                        bgcolor: "#C9C2FF"
+                                        bgcolor: "#F4F5FF"
                                     },
                                     "&.Mui-disabled": {
                                         bgcolor: "rgba(185,174,255,0.35)",
@@ -170,7 +170,7 @@ export default function ChatInput({ disabled = false, onSend }) {
                             width: 8,
                             height: 8,
                             borderRadius: "50%",
-                            bgcolor: "#B9AEFF",
+                            bgcolor: "#FFFFFF",
                             mr: 1
                         }}
                     />

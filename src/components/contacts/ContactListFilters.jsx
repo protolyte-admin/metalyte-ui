@@ -89,7 +89,7 @@ export default function ContactListFilters({
                                 borderColor: selected
                                     ? "transparent"
                                     : "rgba(255,255,255,0.12)",
-                                bgcolor: selected ? "#B9AEFF" : "transparent",
+                                bgcolor: selected ? "#FFFFFF" : "transparent",
                                 color: selected ? "#020B1F" : "#C7CBE0",
                                 transition: "all 140ms ease",
                                 "&:hover": {

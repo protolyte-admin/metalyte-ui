@@ -156,7 +156,7 @@ function ContactRow({ contact, onOpen }) {
                             navigate("/", { state: { openPhoneNumber: contact.phoneNumber } });
                         }}
                         sx={{
-                            color: "#B9AEFF",
+                            color: "#FFFFFF",
                             "&:hover": { bgcolor: "rgba(185,174,255,0.12)" }
                         }}
                     >
@@ -168,36 +168,6 @@ function ContactRow({ contact, onOpen }) {
     );
 }
 
-function LoadMoreRow({ visible, hasMore, loadingMore, sentinelRef }) {
-    if (!visible) return null;
-    return (
-        <Box
-            ref={sentinelRef}
-            sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 1.5,
-                py: 3,
-                color: "text.secondary",
-                fontSize: 13
-            }}
-        >
-            {hasMore ? (
-                <>
-                    <CircularProgress size={16} sx={{ color: "#B9AEFF" }} />
-                    <Typography sx={{ fontSize: 13 }}>
-                        {loadingMore ? "Loading next page…" : "Scroll to load more"}
-                    </Typography>
-                </>
-            ) : (
-                <Typography sx={{ fontSize: 13, opacity: 0.7 }}>
-                    You’ve reached the end
-                </Typography>
-            )}
-        </Box>
-    );
-}
 
 export default function ContactList({
     contacts,
@@ -240,7 +210,7 @@ export default function ContactList({
                         px: 2.5,
                         py: 1,
                         borderRadius: 2,
-                        bgcolor: "#B9AEFF",
+                        bgcolor: "#FFFFFF",
                         color: "#020B1F",
                         fontWeight: 800,
                         cursor: "pointer",
@@ -298,7 +268,7 @@ export default function ContactList({
                             >
                                 {hasMore ? (
                                     <>
-                                        <CircularProgress size={16} sx={{ color: "#B9AEFF" }} />
+                                        <CircularProgress size={16} sx={{ color: "#FFFFFF" }} />
                                         <Typography sx={{ fontSize: 13 }}>
                                             {loadingMore ? "Loading next page…" : "Scroll to load more"}
                                         </Typography>
@@ -316,3 +286,4 @@ export default function ContactList({
         </TableContainer>
     );
 }
+

@@ -2,22 +2,25 @@ import { createTheme } from "@mui/material/styles";
 
 export const marqTokens = {
     background: {
-        primary: "#020B1F",
-        secondary: "#08162F",
-        card: "#16233D",
-        elevated: "#20304A"
+        primary: "#01030A",
+        secondary: "#050A18",
+        card: "#0B1324",
+        elevated: "#121B31"
     },
     accent: {
-        primary: "#5B4BFF",
-        soft: "#B9AEFF"
+        primary: "#2F18F6",
+        hover: "#432DFF",
+        soft: "#7B6DFF",
+        pale: "#D8D4FF"
     },
     text: {
-        primary: "#F5F7FF",
-        secondary: "#A8B0D0",
-        muted: "#727C9C"
+        primary: "#FFFFFF",
+        secondary: "#BBC3D8",
+        muted: "#74809E"
     },
     success: "#00D26A",
-    border: "rgba(255,255,255,0.08)"
+    warning: "#F5A524",
+    border: "rgba(255,255,255,0.09)"
 };
 
 const marqTheme = createTheme({
@@ -29,6 +32,9 @@ const marqTheme = createTheme({
         },
         success: {
             main: marqTokens.success
+        },
+        warning: {
+            main: marqTokens.warning
         },
         background: {
             default: marqTokens.background.primary,
@@ -87,20 +93,19 @@ const marqTheme = createTheme({
                     textTransform: "none"
                 },
                 containedPrimary: {
-                    background: "linear-gradient(135deg, #5B4BFF 0%, #5141ED 100%)",
-                    boxShadow: "0 14px 32px rgba(91,75,255,0.28)",
+                    background: "linear-gradient(135deg, #2F18F6 0%, #1F0ED6 100%)",
+                    boxShadow: "0 14px 32px rgba(47,24,246,0.32)",
                     "&:hover": {
-                        boxShadow: "0 16px 36px rgba(91,75,255,0.36)",
-                        background:
-                            "linear-gradient(135deg, #6658FF 0%, #5747F6 100%)"
+                        boxShadow: "0 16px 36px rgba(47,24,246,0.42)",
+                        background: "linear-gradient(135deg, #432DFF 0%, #2F18F6 100%)"
                     }
                 },
                 outlined: {
                     borderColor: "rgba(255,255,255,0.16)",
                     color: marqTokens.text.primary,
                     "&:hover": {
-                        borderColor: "rgba(185,174,255,0.44)",
-                        backgroundColor: "rgba(255,255,255,0.04)"
+                        borderColor: "rgba(123,109,255,0.58)",
+                        backgroundColor: "rgba(47,24,246,0.1)"
                     }
                 }
             }
@@ -135,7 +140,7 @@ const marqTheme = createTheme({
                         borderColor: "rgba(255,255,255,0.12)"
                     },
                     "&:hover fieldset": {
-                        borderColor: "rgba(185,174,255,0.42)"
+                        borderColor: "rgba(123,109,255,0.48)"
                     },
                     "&.Mui-focused fieldset": {
                         borderColor: marqTokens.accent.soft
@@ -143,7 +148,7 @@ const marqTheme = createTheme({
                 },
                 input: {
                     "&::placeholder": {
-                        color: "#A2A8BC",
+                        color: "#919BB6",
                         opacity: 1
                     }
                 }

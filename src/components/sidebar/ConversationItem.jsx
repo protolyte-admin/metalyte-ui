@@ -63,7 +63,7 @@ function ConversationItem({
                 cursor: "pointer",
                 background: selected ? "#1B2A44" : "transparent",
                 borderLeft: selected
-                    ? "4px solid #B9AEFF"
+                    ? "4px solid #FFFFFF"
                     : "4px solid transparent",
                 borderBottom: "1px solid rgba(255,255,255,0.035)",
                 "&:hover": {
@@ -147,7 +147,7 @@ function ConversationItem({
                                         px: 1,
                                         py: 0.25,
                                         borderRadius: 99,
-                                        bgcolor: "#B9AEFF",
+                                        bgcolor: "#FFFFFF",
                                         color: "#020B1F",
                                         fontSize: 11,
                                         fontWeight: 800
