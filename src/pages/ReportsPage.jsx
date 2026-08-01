@@ -1,7 +1,6 @@
-import { Alert, Box, Button, Typography } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import SideNav from "../components/layout/SideNav";
-// import TopBar from "../components/layout/TopBar";
+import { Alert, Button, Typography } from "antd";
+import { ReloadOutlined } from "@ant-design/icons";
+
 import ReportsSummaryCards from "../components/reports/ReportsSummaryCards";
 import ReportsFilters from "../components/reports/ReportsFilters";
 import ReportsTable from "../components/reports/ReportsTable";
@@ -48,118 +47,73 @@ export default function ReportsPage() {
     );
 
     const handleNavigate = (index) => {
-        if (index >= 0 && index < messages.length) {
-            setSelectedMessage(messages[index]);
-        }
+        if (index >= 0 && index < messages.length) setSelectedMessage(messages[index]);
     };
 
     return (
-        <Box
-            sx={{
-                height: "100vh",
-                display: "flex",
-                background: "background.default",
-                overflow: "hidden"
-            }}
-        >
-            <SideNav />
+        <>
+            <div className="reports-page">
+                <div>
+                    <Typography.Title level={1} className="page-title">Reports</Typography.Title>
+                    <Typography.Text type="secondary">Live analytics on your WhatsApp business message performance.</Typography.Text>
+                </div>
 
-            <Box
-                sx={{
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                    minWidth: 0
-                }}
-            >
-                {/* <TopBar /> */}
+                {summaryError && tableError ? (
+                    <Alert
+                        type="error"
+                        showIcon
+                        message="We couldn't load the latest report data."
+                        description={summaryError}
+                        action={
+                            <Button
+                                icon={<ReloadOutlined />}
+                                onClick={() => {
+                                    retrySummary();
+                                    retryMessages();
+                                }}
+                            >
+                                Retry
+                            </Button>
+                        }
+                    />
+                ) : null}
 
-                <Box
-                    sx={{
-                        flex: 1,
-                        display: "flex",
-                        flexDirection: "column",
-                        minHeight: 0,
-                        overflowY: "auto",
-                        px: {
-                            xs: 2,
-                            md: 3
-                        },
-                        py: {
-                            xs: 2,
-                            md: 3
-                        },
-                        gap: 3
+                <ReportsSummaryCards
+                    summary={summary}
+                    summaryHasData={summaryHasData}
+                    loading={summaryLoading}
+                    error={summaryError}
+                    updatedAt={summaryUpdatedAt}
+                />
+
+                <ReportsFilters
+                    filters={filters}
+                    onChange={setFilters}
+                    onApply={applyFilters}
+                    onReset={resetFilters}
+                    loading={tableLoading || summaryLoading}
+                />
+
+                <ReportsTable
+                    messages={messages}
+                    loading={tableLoading}
+                    error={tableError}
+                    page={page}
+                    pageSize={pageSize}
+                    rowCount={rowCount}
+                    sortModel={sortModel}
+                    onPageChange={(nextPage, nextPageSize) => setPaginationModel(nextPage, nextPageSize)}
+                    onSortModelChange={(nextSortModel) => {
+                        setSortModel(nextSortModel.length ? nextSortModel : [{ field: "sentAt", sort: "desc" }]);
+                        setPaginationModel(0, pageSize);
                     }}
-                >
-                    <Box>
-                        <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
-                            Reports
-                        </Typography>
-                        <Typography color="text.secondary" variant="body2">
-                            Live analytics on your WhatsApp business message performance.
-                        </Typography>
-                    </Box>
-
-                    {summaryError && tableError ? (
-                        <Alert
-                            severity="error"
-                            action={
-                                <Button
-                                    color="inherit"
-                                    size="small"
-                                    startIcon={<RefreshIcon />}
-                                    onClick={() => {
-                                        retrySummary();
-                                        retryMessages();
-                                    }}
-                                >
-                                    Retry
-                                </Button>
-                            }
-                        >
-                            We couldn't load the latest report data. {summaryError}
-                        </Alert>
-                    ) : null}
-
-                    <ReportsSummaryCards
-                        summary={summary}
-                        summaryHasData={summaryHasData}
-                        loading={summaryLoading}
-                        error={summaryError}
-                        updatedAt={summaryUpdatedAt}
-                    />
-
-                    <ReportsFilters
-                        filters={filters}
-                        onChange={setFilters}
-                        onApply={applyFilters}
-                        onReset={resetFilters}
-                        loading={tableLoading || summaryLoading}
-                    />
-
-                    <ReportsTable
-                        messages={messages}
-                        loading={tableLoading}
-                        error={tableError}
-                        page={page}
-                        pageSize={pageSize}
-                        rowCount={rowCount}
-                        sortModel={sortModel}
-                        onPageChange={(nextPage, nextPageSize) => setPaginationModel(nextPage, nextPageSize)}
-                        onPageSizeChange={(nextPageSize) => setPaginationModel(0, nextPageSize)}
-                        onSortModelChange={(nextSortModel) => {
-                            setSortModel(nextSortModel.length ? nextSortModel : [{ field: "sentAt", sort: "desc" }]);
-                            setPaginationModel(0, pageSize);
-                        }}
-                        onRowClick={(params) => setSelectedMessage(params.row)}
-                        onRefresh={refresh}
-                        onReset={resetFilters}
-                        hasFilters={hasFilter}
-                        lastUpdated={tableUpdatedAt}
-                    />
-                </Box>
-            </Box>
+                    onRowClick={(params) => setSelectedMessage(params.row)}
+                    onRefresh={refresh}
+                    onReset={resetFilters}
+                    hasFilters={hasFilter}
+                    lastUpdated={tableUpdatedAt}
+                />
+            </div>
 
             <MessageDetailsDrawer
                 message={selectedMessage}
@@ -167,6 +121,6 @@ export default function ReportsPage() {
                 onClose={() => setSelectedMessage(null)}
                 onNavigate={handleNavigate}
             />
-        </Box>
+        </>
     );
 }

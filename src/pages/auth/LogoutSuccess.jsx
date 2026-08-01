@@ -1,90 +1,81 @@
-import { Box, CardContent, Link, Typography } from "@mui/material";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircle";
-import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { Button, Space, Typography } from "antd";
+import { CheckCircleOutlined, LockOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 import MarqButton from "../../components/common/MarqButton";
 import BrandLogo from "../../components/common/BrandLogo";
 import MarqCard from "../../components/common/MarqCard";
+import { tokens } from "../../theme/tokens";
 
 export default function LogoutSuccess() {
     const navigate = useNavigate();
 
     return (
-        <Box
-            sx={{
+        <main
+            className="auth-page auth-page-logout"
+            style={{
                 minHeight: "100vh",
                 width: "100%",
-                px: 2,
-                py: { xs: 5, md: 7 },
+                padding: "56px 16px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 background:
-                    "radial-gradient(circle at 86% 7%, rgba(47,24,246,0.16), transparent 23rem), linear-gradient(90deg, #050A18 0%, #01030A 44%, #070D1D 100%)"
+                    "radial-gradient(circle at 86% 7%, rgba(47,24,246,0.08), transparent 23rem), linear-gradient(90deg, #FFFFFF 0%, #F8FAFC 44%, #EEF2FF 100%)"
             }}
         >
-            <Box sx={{ width: "100%", maxWidth: 610 }}>
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 5 }}>
-                    <BrandLogo sx={{ width: { xs: 240, sm: 320 }, height: { xs: 78, sm: 104 } }} />
-                </Box>
+            <section style={{ width: "100%", maxWidth: 610 }}>
+                <Space direction="vertical" align="center" style={{ width: "100%", marginBottom: 40 }}>
+                    <BrandLogo style={{ width: "min(320px, 78vw)" }} />
+                </Space>
 
                 <MarqCard>
-                    <CardContent sx={{ p: { xs: 4, sm: 7 }, textAlign: "center" }}>
-                        <Box
-                            sx={{
-                                width: 92,
-                                height: 92,
-                                mx: "auto",
-                                mb: 4,
-                                borderRadius: "50%",
-                                border: "1px solid rgba(123,109,255,0.32)",
-                                display: "grid",
-                                placeItems: "center",
-                                bgcolor: "rgba(47,24,246,0.1)"
-                            }}
-                        >
-                            <CheckCircleOutlineIcon sx={{ fontSize: 54, color: "#D8D4FF" }} />
-                        </Box>
+                    <div style={{ padding: "56px min(56px, 8vw)", textAlign: "center" }}>
+                        <div className="auth-success-icon">
+                            <CheckCircleOutlined />
+                        </div>
 
-                        <Typography variant="h3" sx={{ mb: 2, fontSize: { xs: 30, sm: 38 } }}>
+                        <Typography.Title level={1} style={{ marginBottom: 16 }}>
                             Securely Logged Out
-                        </Typography>
+                        </Typography.Title>
 
-                        <Typography sx={{ color: "text.secondary", fontSize: 19, lineHeight: 1.5, maxWidth: 450, mx: "auto", mb: 5 }}>
+                        <Typography.Paragraph className="auth-logout-copy">
                             You have been successfully logged out of your enterprise session. Thank you for using Metalyte.
-                        </Typography>
+                        </Typography.Paragraph>
 
                         <MarqButton
                             fullWidth
                             variant="contained"
                             onClick={() => navigate("/login", { replace: true })}
-                            sx={{ minHeight: 58, mb: 4, letterSpacing: 1.4 }}
+                            style={{ minHeight: 58, marginBottom: 32, letterSpacing: 1.4 }}
                         >
                             RETURN TO LOGIN
                         </MarqButton>
 
-                        <Typography color="text.secondary">
+                        <Typography.Text style={{ color: tokens.colors.textSecondary }}>
                             Need help?{" "}
-                            <Link underline="none" sx={{ color: "#7B6DFF", fontWeight: 700 }}>
+                            <Button type="link" className="auth-support-link">
                                 Contact Support
-                            </Link>
-                        </Typography>
-                    </CardContent>
+                            </Button>
+                        </Typography.Text>
+                    </div>
                 </MarqCard>
 
-                <Box sx={{ mt: 6, display: "flex", justifyContent: "center", gap: 4, color: "#74809E", flexWrap: "wrap" }}>
-                    <Typography variant="caption" sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
-                        <ShieldOutlinedIcon sx={{ fontSize: 16 }} />
-                        Enterprise Secure
-                    </Typography>
-                    <Typography variant="caption" sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
-                        <LockOutlinedIcon sx={{ fontSize: 16 }} />
-                        Data Encrypted
-                    </Typography>
-                </Box>
-            </Box>
-        </Box>
+                <Space align="center" wrap size={32} style={{ width: "100%", justifyContent: "center", marginTop: 48, color: tokens.colors.textMuted }}>
+                    <Space size={6}>
+                        <SafetyCertificateOutlined />
+                        <Typography.Text style={{ color: tokens.colors.textMuted, fontSize: 12 }}>
+                            Enterprise Secure
+                        </Typography.Text>
+                    </Space>
+                    <Space size={6}>
+                        <LockOutlined />
+                        <Typography.Text style={{ color: tokens.colors.textMuted, fontSize: 12 }}>
+                            Data Encrypted
+                        </Typography.Text>
+                    </Space>
+                </Space>
+            </section>
+        </main>
     );
 }

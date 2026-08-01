@@ -1,21 +1,13 @@
-import {
-    Box,
-    InputAdornment,
-    MenuItem,
-    Select,
-    TextField,
-    Typography
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { Input, Select, Segmented, Space, Typography } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 
 const SORT_OPTIONS = [
     { value: "createdAt,desc", label: "Newest first" },
     { value: "createdAt,asc", label: "Oldest first" },
-    { value: "name,asc", label: "Name A → Z" },
-    { value: "name,desc", label: "Name Z → A" },
-    { value: "phoneNumber,asc", label: "Phone ↑" },
-    { value: "phoneNumber,desc", label: "Phone ↓" },
+    { value: "name,asc", label: "Name A to Z" },
+    { value: "name,desc", label: "Name Z to A" },
+    { value: "phoneNumber,asc", label: "Phone ascending" },
+    { value: "phoneNumber,desc", label: "Phone descending" },
     { value: "lastContactedAt,desc", label: "Recently contacted" },
     { value: "lastContactedAt,asc", label: "Least recently contacted" }
 ];
@@ -38,102 +30,40 @@ export default function ContactListFilters({
     filteredCount
 }) {
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: { xs: "column", md: "row" },
-                alignItems: { xs: "stretch", md: "center" },
-                gap: 2,
-                mb: 3
-            }}
-        >
-            <TextField
-                size="small"
-                placeholder="Search name, phone, email…"
+        <div className="contacts-filters">
+            <Input
+                size="large"
+                placeholder="Search name, phone, email..."
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
-                slotProps={{
-                    input: {
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon sx={{ color: "#A8B0D0", fontSize: 19 }} />
-                            </InputAdornment>
-                        )
-                    }
-                }}
-                sx={{
-                    flex: 1,
-                    "& .MuiOutlinedInput-root": {
-                        height: 44,
-                        bgcolor: "#08162F"
-                    }
-                }}
+                prefix={<SearchOutlined />}
+                className="contacts-search"
             />
 
-            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                {DATE_RANGE_OPTIONS.map((option) => {
-                    const selected = dateRange === option.value;
-                    return (
-                        <Box
-                            key={option.value}
-                            onClick={() => onDateRangeChange(option.value)}
-                            sx={{
-                                px: 1.75,
-                                py: 0.85,
-                                borderRadius: 99,
-                                cursor: "pointer",
-                                fontSize: 13,
-                                fontWeight: 700,
-                                letterSpacing: 0.4,
-                                border: "1px solid",
-                                borderColor: selected
-                                    ? "transparent"
-                                    : "rgba(255,255,255,0.12)",
-                                bgcolor: selected ? "#FFFFFF" : "transparent",
-                                color: selected ? "#020B1F" : "#C7CBE0",
-                                transition: "all 140ms ease",
-                                "&:hover": {
-                                    borderColor: selected
-                                        ? "transparent"
-                                        : "rgba(185,174,255,0.4)"
-                                }
-                            }}
-                        >
-                            {option.label}
-                        </Box>
-                    );
-                })}
-            </Box>
+            <Segmented
+                value={dateRange}
+                onChange={onDateRangeChange}
+                options={DATE_RANGE_OPTIONS.map(({ value, label }) => ({ value, label }))}
+                className="contacts-range"
+            />
 
             <Select
-                size="small"
+                size="large"
                 value={sort}
-                onChange={(event) => onSortChange(event.target.value)}
-                IconComponent={ArrowDropDownIcon}
-                sx={{
-                    minWidth: 200,
-                    height: 44,
-                    bgcolor: "#08162F",
-                    "& .MuiSelect-select": { fontSize: 14, fontWeight: 600 }
-                }}
-            >
-                {SORT_OPTIONS.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                        Sort: {option.label}
-                    </MenuItem>
-                ))}
-            </Select>
+                onChange={onSortChange}
+                options={SORT_OPTIONS.map((option) => ({
+                    value: option.value,
+                    label: `Sort: ${option.label}`
+                }))}
+                className="contacts-sort"
+            />
 
-            <Typography
-                sx={{
-                    color: "text.secondary",
-                    fontSize: 13,
-                    whiteSpace: "nowrap"
-                }}
-            >
-                {filteredCount} of {totalCount}
-            </Typography>
-        </Box>
+            <Space className="contacts-count">
+                <Typography.Text type="secondary">
+                    {filteredCount} of {totalCount}
+                </Typography.Text>
+            </Space>
+        </div>
     );
 }
 

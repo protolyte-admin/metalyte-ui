@@ -1,41 +1,16 @@
-import { Box, Button } from "@mui/material";
-import AppleIcon from "@mui/icons-material/Apple";
-import GoogleIcon from "@mui/icons-material/Google";
+import { AppleFilled, GoogleOutlined } from "@ant-design/icons";
+
+import MarqButton from "../common/MarqButton";
 
 export default function SocialLoginButtons() {
     return (
-        <Box
-            sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                    xs: "1fr",
-                    sm: "1fr 1fr"
-                },
-                gap: 2
-            }}
-        >
-            <Button
-                variant="outlined"
-                startIcon={<GoogleIcon />}
-                sx={{
-                    minHeight: 56,
-                    bgcolor: "rgba(2,11,31,0.38)",
-                    fontSize: 16
-                }}
-            >
+        <div className="auth-social-grid">
+            <MarqButton icon={<GoogleOutlined />} className="auth-social-button">
                 Google
-            </Button>
-            <Button
-                variant="outlined"
-                startIcon={<AppleIcon />}
-                sx={{
-                    minHeight: 56,
-                    bgcolor: "rgba(2,11,31,0.38)",
-                    fontSize: 16
-                }}
-            >
+            </MarqButton>
+            <MarqButton icon={<AppleFilled />} className="auth-social-button">
                 Apple
-            </Button>
-        </Box>
+            </MarqButton>
+        </div>
     );
 }

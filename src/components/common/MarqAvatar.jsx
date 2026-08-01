@@ -1,49 +1,46 @@
-import { Avatar, Box } from "@mui/material";
+import { Avatar, Badge } from "antd";
+
+import { tokens } from "../../theme/tokens";
+import { mergeClassNames, sxToStyle } from "./styleUtils";
 
 export default function MarqAvatar({
     online = false,
     size = 44,
     sx,
+    style,
+    className,
     children,
     ...props
 }) {
-    return (
-        <Box
-            sx={{
-                position: "relative",
-                width: size,
-                height: size,
-                flex: "0 0 auto"
+    const avatar = (
+        <Avatar
+            size={size}
+            className={mergeClassNames("marq-avatar", className)}
+            style={{
+                backgroundColor: tokens.colors.bgSecondary,
+                color: tokens.colors.textPrimary,
+                border: "1px solid rgba(123,109,255,0.34)",
+                fontWeight: 700,
+                flex: "0 0 auto",
+                ...sxToStyle(sx),
+                ...style
             }}
+            {...props}
         >
-            <Avatar
-                sx={{
-                    width: size,
-                    height: size,
-                    bgcolor: "#2B3B57",
-                    color: "#F5F7FF",
-                    border: "1px solid rgba(185,174,255,0.34)",
-                    fontWeight: 700,
-                    ...sx
-                }}
-                {...props}
-            >
-                {children}
-            </Avatar>
-            {online && (
-                <Box
-                    sx={{
-                        position: "absolute",
-                        right: 0,
-                        bottom: 1,
-                        width: Math.max(10, size * 0.22),
-                        height: Math.max(10, size * 0.22),
-                        borderRadius: "50%",
-                        bgcolor: "#00D26A",
-                        border: "2px solid #08162F"
-                    }}
-                />
-            )}
-        </Box>
+            {children}
+        </Avatar>
+    );
+
+    if (!online) return avatar;
+
+    return (
+        <Badge
+            dot
+            color={tokens.colors.success}
+            offset={[-Math.max(3, size * 0.08), Math.max(4, size * 0.08)]}
+            className="marq-avatar-status"
+        >
+            {avatar}
+        </Badge>
     );
 }

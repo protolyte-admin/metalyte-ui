@@ -1,4 +1,4 @@
-import { Box, Button, Divider, InputAdornment, TextField } from "@mui/material";
+import { Box, Divider, InputAdornment, TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import SearchIcon from "@mui/icons-material/Search";
@@ -58,19 +58,7 @@ export default function TopBar({ onNewMessage }) {
                 <NotificationsNoneIcon sx={{ color: "#D3D5E6", fontSize: 28 }} />
                 <SearchIcon sx={{ color: "#D3D5E6", fontSize: 29 }} />
                 <Divider orientation="vertical" flexItem sx={{ borderColor: "rgba(255,255,255,0.14)" }} />
-                <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={onNewMessage}
-                    disabled={!onNewMessage}
-                    sx={{
-                        px: 2.5,
-                        minHeight: 50,
-                        fontSize: 18
-                    }}
-                >
-                    New Message
-                </Button>
+               
             </Box>
         </Box>
     );

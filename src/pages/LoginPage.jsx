@@ -1,6 +1,5 @@
-import { Box, CardContent, Link, Typography } from "@mui/material";
-import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
-
+import { App, Space, Typography } from "antd";
+import { SafetyCertificateOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -9,10 +8,12 @@ import BrandLogo from "../components/common/BrandLogo";
 import MarqCard from "../components/common/MarqCard";
 import { useAuth } from "../context/useAuth";
 import { login } from "../services/authService";
+import { tokens } from "../theme/tokens";
 
 function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { message } = App.useApp();
     const { signIn } = useAuth();
 
     const redirectTo =
@@ -38,36 +39,36 @@ function LoginPage() {
 
             navigate(redirectTo, { replace: true });
         } catch (error) {
-            alert(error?.response?.data?.message || "Invalid credentials");
+            message.error(error?.response?.data?.message || "Invalid credentials");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Box
-            sx={{
+        <main
+            className="auth-page auth-page-login"
+            style={{
                 minHeight: "100vh",
                 width: "100%",
-                px: 2,
-                py: { xs: 5, md: 7 },
+                padding: "56px 16px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 background:
-                    "radial-gradient(circle at 12% 12%, rgba(47,24,246,0.18), transparent 26rem), radial-gradient(circle at 88% 18%, rgba(255,255,255,0.07), transparent 21rem), linear-gradient(135deg, #090E1F 0%, #01030A 48%, #050A18 100%)"
+                    "radial-gradient(circle at 12% 12%, rgba(47,24,246,0.08), transparent 26rem), radial-gradient(circle at 88% 18%, rgba(59,130,246,0.08), transparent 21rem), linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 48%, #EEF2FF 100%)"
             }}
         >
-            <Box sx={{ width: "100%", maxWidth: 560 }}>
-                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 4.5 }}>
-                    <BrandLogo sx={{ width: { xs: 250, sm: 330 }, height: { xs: 82, sm: 110 }, mb: 1.75 }} />
-                    <Typography sx={{ color: "text.secondary", mt: 0.75, fontSize: 17 }}>
+            <section style={{ width: "100%", maxWidth: 560 }}>
+                <Space direction="vertical" align="center" size={10} style={{ width: "100%", marginBottom: 36 }}>
+                    <BrandLogo style={{ width: "min(330px, 78vw)" }} />
+                    <Typography.Text style={{ color: tokens.colors.textSecondary, fontSize: 17 }}>
                         Business Communication Platform
-                    </Typography>
-                </Box>
+                    </Typography.Text>
+                </Space>
 
                 <MarqCard>
-                    <CardContent sx={{ p: { xs: 3, sm: 5 } }}>
+                    <div style={{ padding: "40px min(40px, 7vw)" }}>
                         <LoginForm
                             email={email}
                             password={password}
@@ -76,24 +77,24 @@ function LoginPage() {
                             onPasswordChange={setPassword}
                             onSubmit={handleLogin}
                         />
-                    </CardContent>
+                    </div>
                 </MarqCard>
 
-                <Typography color="text.secondary" sx={{ textAlign: "center", mt: 3.5 }}>
+                <Typography.Paragraph style={{ color: tokens.colors.textSecondary, textAlign: "center", marginTop: 28, marginBottom: 0 }}>
                     Don&apos;t have an account?{" "}
-                    <Link component="button" underline="none" sx={{ color: "#7B6DFF", fontWeight: 800 }}>
+                    <button type="button" className="auth-link-button">
                         Request Access
-                    </Link>
-                </Typography>
+                    </button>
+                </Typography.Paragraph>
 
-                <Box sx={{ mt: 6, display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 3, color: "#74809E" }}>
-                    <Typography variant="caption" sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, fontWeight: 700 }}>
-                        <SecurityOutlinedIcon sx={{ fontSize: 16 }} />
+                <Space align="center" style={{ width: "100%", justifyContent: "center", marginTop: 48, color: tokens.colors.textMuted }}>
+                    <SafetyCertificateOutlined />
+                    <Typography.Text style={{ color: tokens.colors.textMuted, fontSize: 12, fontWeight: 700 }}>
                         A product from Protolyte Systems
-                    </Typography>
-                </Box>
-            </Box>
-        </Box>
+                    </Typography.Text>
+                </Space>
+            </section>
+        </main>
     );
 }
 

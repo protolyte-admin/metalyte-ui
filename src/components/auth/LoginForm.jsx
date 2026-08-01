@@ -1,15 +1,9 @@
-import {
-    Box,
-    CircularProgress,
-    InputAdornment,
-    Link,
-    Typography
-} from "@mui/material";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { Space, Spin, Typography } from "antd";
+import { LockOutlined, MailOutlined } from "@ant-design/icons";
 
 import MarqButton from "../common/MarqButton";
 import MarqInput from "../common/MarqInput";
+import { tokens } from "../../theme/tokens";
 
 export default function LoginForm({
     email,
@@ -20,86 +14,32 @@ export default function LoginForm({
     onSubmit
 }) {
     return (
-        <Box
-            component="form"
+        <form
             onSubmit={(event) => {
                 event.preventDefault();
                 onSubmit();
             }}
         >
-            <Typography
-                variant="h4"
-                sx={{
-                    mb: 4,
-                    color: "text.primary",
-                    fontSize: {
-                        xs: 28,
-                        sm: 32
-                    }
-                }}
-            >
+            <Typography.Title level={2} style={{ marginTop: 0, marginBottom: 32, color: tokens.colors.textPrimary }}>
                 Welcome back
-            </Typography>
-
-            <Typography
-                sx={{
-                    color: "text.secondary",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    mb: 1.25,
-                    letterSpacing: 1.4
-                }}
-            >
-                EMAIL ADDRESS
-            </Typography>
+            </Typography.Title>
 
             <MarqInput
+                label="EMAIL ADDRESS"
                 placeholder="name@company.com"
                 value={email}
                 onChange={(event) => onEmailChange(event.target.value)}
                 autoComplete="email"
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <EmailOutlinedIcon sx={{ color: "#C7C9DF" }} />
-                        </InputAdornment>
-                    )
-                }}
-                sx={{ mb: 3 }}
+                prefix={<MailOutlined style={{ color: "#C7C9DF" }} />}
+                style={{ marginBottom: 24 }}
             />
 
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: 2,
-                    mb: 1.25
-                }}
-            >
-                <Typography
-                    sx={{
-                        color: "text.secondary",
-                        fontSize: 13,
-                        fontWeight: 800,
-                        letterSpacing: 1.4
-                    }}
-                >
-                    PASSWORD
-                </Typography>
-                <Link
-                    component="button"
-                    type="button"
-                    underline="none"
-                    sx={{
-                        color: "#7B6DFF",
-                        fontSize: 13,
-                        fontWeight: 800
-                    }}
-                >
+            <div className="auth-password-row">
+                <Typography.Text className="auth-field-label">PASSWORD</Typography.Text>
+                <button type="button" className="auth-link-button auth-forgot-link">
                     Forgot Password?
-                </Link>
-            </Box>
+                </button>
+            </div>
 
             <MarqInput
                 type="password"
@@ -107,14 +47,8 @@ export default function LoginForm({
                 value={password}
                 onChange={(event) => onPasswordChange(event.target.value)}
                 autoComplete="current-password"
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <LockOutlinedIcon sx={{ color: "#C7C9DF" }} />
-                        </InputAdornment>
-                    )
-                }}
-                sx={{ mb: 3.5 }}
+                prefix={<LockOutlined style={{ color: "#C7C9DF" }} />}
+                style={{ marginBottom: 28 }}
             />
 
             <MarqButton
@@ -123,46 +57,17 @@ export default function LoginForm({
                 variant="contained"
                 type="submit"
                 disabled={loading}
-                sx={{
-                    minHeight: 64,
-                    mb: 4,
-                    fontSize: 18
-                }}
+                style={{ minHeight: 64, marginBottom: 32, fontSize: 18 }}
             >
                 {loading ? (
-                    <>
-                        <CircularProgress size={20} sx={{ mr: 1.25 }} />
+                    <Space size={10}>
+                        <Spin size="small" />
                         Authenticating...
-                    </>
+                    </Space>
                 ) : (
                     "Sign In"
                 )}
             </MarqButton>
-
-            {/* <Box
-                sx={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr auto 1fr",
-                    gap: 2,
-                    alignItems: "center",
-                    mb: 4
-                }}
-            >
-                <Box sx={{ height: 1, bgcolor: "rgba(255,255,255,0.16)" }} />
-                <Typography
-                    sx={{
-                        color: "#9EA6C0",
-                        fontSize: 13,
-                        fontWeight: 800,
-                        letterSpacing: 1
-                    }}
-                >
-                    OR CONTINUE WITH
-                </Typography>
-                <Box sx={{ height: 1, bgcolor: "rgba(255,255,255,0.16)" }} />
-            </Box>
-
-            <SocialLoginButtons /> */}
-        </Box>
+        </form>
     );
 }

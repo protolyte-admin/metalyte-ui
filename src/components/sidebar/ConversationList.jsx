@@ -1,14 +1,11 @@
-import { Box, CircularProgress, InputAdornment, TextField, Typography } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { Empty, Input, Spin, Typography } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
 
 import ConversationItem from "./ConversationItem";
 import { getConversations } from "../../api/conversationApi";
 
-function ConversationList({
-    selectedConversation,
-    setSelectedConversation
-}) {
+function ConversationList({ selectedConversation, setSelectedConversation }) {
     const [conversations, setConversations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [query, setQuery] = useState("");
@@ -19,22 +16,14 @@ function ConversationList({
         getConversations()
             .then((response) => {
                 const data = response.data.data ?? response.data ?? [];
-
-                if (active) {
-                    setConversations(Array.isArray(data) ? data : []);
-                }
+                if (active) setConversations(Array.isArray(data) ? data : []);
             })
             .catch((error) => {
                 console.error(error);
-
-                if (active) {
-                    setConversations([]);
-                }
+                if (active) setConversations([]);
             })
             .finally(() => {
-                if (active) {
-                    setLoading(false);
-                }
+                if (active) setLoading(false);
             });
 
         return () => {
@@ -44,92 +33,48 @@ function ConversationList({
 
     const filteredConversations = useMemo(() => {
         const value = query.trim().toLowerCase();
-
-        if (!value) {
-            return conversations;
-        }
+        if (!value) return conversations;
 
         return conversations.filter((conversation) => {
-            const name =
-                conversation.name ||
-                conversation.displayName ||
-                conversation.contactName ||
-                conversation.phoneNumber ||
-                "";
-            const lastMessage =
-                conversation.lastMessage ||
-                conversation.preview ||
-                conversation.message ||
-                "";
-
+            const name = conversation.name || conversation.displayName || conversation.contactName || conversation.phoneNumber || "";
+            const lastMessage = conversation.lastMessage || conversation.preview || conversation.message || "";
             return `${name} ${lastMessage}`.toLowerCase().includes(value);
         });
     }, [conversations, query]);
 
     return (
-        <Box
-            sx={{
-                flex: 1,
-                minHeight: 0,
-                overflowY: "auto"
-            }}
-        >
-            <Box sx={{ px: 2.5, pb: 2 }}>
-                <TextField
-                    fullWidth
-                    size="small"
+        <div className="conversation-list">
+            <div className="conversation-search-wrap">
+                <Input
+                    size="large"
                     placeholder="Search messages..."
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    slotProps={{
-                        input: {
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon sx={{ color: "#A8B0D0", fontSize: 19 }} />
-                                </InputAdornment>
-                            )
-                        }
-                    }}
-                    sx={{
-                        "& .MuiOutlinedInput-root": {
-                            height: 44,
-                            bgcolor: "#08162F"
-                        }
-                    }}
+                    prefix={<SearchOutlined />}
+                    allowClear
                 />
-            </Box>
+            </div>
 
-            {loading && (
-                <Box sx={{ py: 6, display: "flex", justifyContent: "center" }}>
-                    <CircularProgress size={28} />
-                </Box>
-            )}
+            {loading ? (
+                <div className="conversation-loading"><Spin /></div>
+            ) : null}
 
-            {!loading && filteredConversations.length === 0 && (
-                <Typography
-                    sx={{
-                        color: "text.secondary",
-                        px: 3,
-                        py: 4,
-                        textAlign: "center"
-                    }}
-                >
-                    No conversations found
-                </Typography>
-            )}
+            {!loading && filteredConversations.length === 0 ? (
+                <div className="conversation-empty">
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No conversations found" />
+                    <Typography.Text type="secondary">Try a different search term.</Typography.Text>
+                </div>
+            ) : null}
 
-            {!loading &&
-                filteredConversations.map((conversation) => (
-                    <ConversationItem
-                        key={conversation.id || conversation.phoneNumber}
-                        conversation={conversation}
-                        selected={
-                            selectedConversation?.phoneNumber === conversation.phoneNumber
-                        }
-                        onClick={() => setSelectedConversation(conversation)}
-                    />
-                ))}
-        </Box>
+            {!loading && filteredConversations.map((conversation) => (
+                <ConversationItem
+                    key={conversation.id || conversation.phoneNumber}
+                    conversation={conversation}
+                    selected={selectedConversation?.phoneNumber === conversation.phoneNumber}
+                    onClick={() => setSelectedConversation(conversation)}
+                />
+            ))}
+        </div>
     );
 }
 

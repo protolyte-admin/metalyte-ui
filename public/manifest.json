@@ -1,0 +1,33 @@
+{
+  "short_name": "Marq Studio",
+  "name": "Marq Studio Web UI",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "type": "image/x-icon",
+      "sizes": [
+        { "w": 16, "h": 16 },
+        { "w": 32, "h": 32 },
+        { "w": 48, "h": 48 }
+      ]
+    },
+    {
+      "src": "android-chrome-192x192.png",
+      "type": "image/png",
+      "sizes": [
+        { "w": 192, "h": 192 }
+      ]
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": [
+        { "w": 512, "h": 512 }
+      ]
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B1020",
+  "theme_color": "#6C63FF"
+}
