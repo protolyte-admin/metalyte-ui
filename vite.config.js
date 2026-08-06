@@ -8,7 +8,7 @@ export default defineConfig({
         port: 5173,
         proxy: {
             "/api": {
-                target: "https://whatsapp-engine-mz3d.onrender.com",
+                target: "https://whatsapp-engine-mz3d.onrender.com", 
                 // target: "http://localhost:8080",
                 // target: "https://protolyte-whatsapp-engine-gcedanfxd7azhte4.eastasia-01.azurewebsites.net",
                 // target: "https://sizes-christ-written-usage.trycloudflare.com",
